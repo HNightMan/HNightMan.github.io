@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>关于简单的php函数漏洞和绕过 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="先贴三张php官方类型比较的图    php是一种弱类型语言，颇具灵活性，但也因此存在一些绕过的奇技淫巧，一些基础ctf题里也有php代码审计这一类，下面记录一些简单php函数绕过点，如有错误还请指点。 extrac():可传入一个带键值的数组，分别把键值赋值给对应键名的变量，若变量存在则会覆盖原值，可以用这个特性改变已存在变量的值。 file_get_contents():传入一个文件名，将文件">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于简单的php函数漏洞和绕过">
+<meta property="og:url" content="http://yoursite.com/2019/05/02/2019-05-02-simple_php_bugs/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="先贴三张php官方类型比较的图    php是一种弱类型语言，颇具灵活性，但也因此存在一些绕过的奇技淫巧，一些基础ctf题里也有php代码审计这一类，下面记录一些简单php函数绕过点，如有错误还请指点。 extrac():可传入一个带键值的数组，分别把键值赋值给对应键名的变量，若变量存在则会覆盖原值，可以用这个特性改变已存在变量的值。 file_get_contents():传入一个文件名，将文件">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://s2.ax1x.com/2019/09/11/na4Hjs.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/09/11/na4qun.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/09/11/na4OH0.png">
+<meta property="article:published_time" content="2019-05-02T02:35:37.000Z">
+<meta property="article:modified_time" content="2020-03-11T01:44:10.000Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="PHP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.ax1x.com/2019/09/11/na4Hjs.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-2019-05-02-simple_php_bugs" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/05/02/2019-05-02-simple_php_bugs/" class="article-date">
+  <time datetime="2019-05-02T02:35:37.000Z" itemprop="datePublished">2019-05-02</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Web/">Web</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      关于简单的php函数漏洞和绕过
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>先贴三张php官方类型比较的图</p>
+<p><img src="https://s2.ax1x.com/2019/09/11/na4Hjs.png"></p>
+<p><img src="https://s2.ax1x.com/2019/09/11/na4qun.png"></p>
+<p><img src="https://s2.ax1x.com/2019/09/11/na4OH0.png"></p>
+<p>php是一种弱类型语言，颇具灵活性，但也因此存在一些绕过的奇技淫巧，一些基础ctf题里也有php代码审计这一类，下面记录一些简单php函数绕过点，如有错误还请指点。</p>
+<h5 id="extrac"><a href="#extrac" class="headerlink" title="extrac():"></a>extrac():</h5><p>可传入一个带键值的数组，分别把键值赋值给对应键名的变量，若变量存在则会覆盖原值，可以用这个特性改变已存在变量的值。</p>
+<h5 id="file-get-contents"><a href="#file-get-contents" class="headerlink" title="file_get_contents():"></a>file_get_contents():</h5><p>传入一个文件名，将文件内容读取至一个字符串中，但是如果找不到该文件的话它会返回FALSE。</p>
+<h5 id="strcmp-v1-v2"><a href="#strcmp-v1-v2" class="headerlink" title="strcmp($v1,$v2):"></a>strcmp($v1,$v2):</h5><p>比较两个值，若$v1&lt;$v2返回&lt;0,若$v&gt;$v2返回&gt;0，若相等返回0，但是这个函数不能处理数组，而且遇到数组报错之后会返回NULL。</p>
+<h5 id="md5"><a href="#md5" class="headerlink" title="md5():"></a>md5():</h5><p>md5函数存在碰撞问题，即多个明文加密后密文相同，php的0e开头字符串会被判定成科学计数法的数字也常常和md5联系在一起，还有md5函数不能处理数组，遇到数组也会返回NULL，另外sha1()函数处理数组也会返回NULL。</p>
+<h5 id="strpos-str1-str2-："><a href="#strpos-str1-str2-：" class="headerlink" title="strpos($str1,$str2)："></a>strpos($str1,$str2)：</h5><p>查找$str2在$str1中第一次出现的位置（0开始），若没有出现则返回FALSE，若是$str1为数组则会返回NULL，$str2为数组会返回FALSE。</p>
+<p>另外还有类似函数:</p>
+<p>stripos(): 查找首次出现的位置，不区分大小写；strrpos(): 查找最后一次出现的位置，区分大小写；strripos(): 查找最后一次出现的位置，不区分大小写。</p>
+<h5 id="大于小于等于符号判断大小"><a href="#大于小于等于符号判断大小" class="headerlink" title="大于小于等于符号判断大小:"></a>大于小于等于符号判断大小:</h5><p>php中 如果判断大小时遇到数组，优先认为数组较大，然后才是数字和字符串，在数组间的比较中先判断数组的大小（数组中有多少数），若大小相同再依次从前往后判断数的大小，相等则继续判断下一位，不相等则返回结果。字符串与数字比较时若字符串全由数字组成则转化成数字比较，否则转化成字符串比较。</p>
+<h5 id="ereg"><a href="#ereg" class="headerlink" title="ereg():"></a>ereg():</h5><p>php中ereg()函数时用来在字符串中查找是否含有指定字串，含有则返回TRUE否则返回FALSE，大小写敏感。</p>
+<p>它处理数组会返回NULL，字符串中遇到%00会认为字符串结束，不再匹配后面的字符。这个函数在php5以后就已经被舍弃了。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/05/02/2019-05-02-simple_php_bugs/" data-id="ckebl5jcu0009q8unfjyja4qz" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP/" rel="tag">PHP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag">笔记</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/05/24/2019-05-24-A_Re_writeup/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          记一次外挂破解
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/05/01/2019-05-01-Begining_of_Web/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">初入Web做的水题</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Reverse/">Reverse</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web/">Web</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP/" rel="tag">PHP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/" rel="tag">Python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mips/" rel="tag">mips</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/writeup/" rel="tag">writeup</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B1%87%E7%BC%96/" rel="tag">汇编</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag">笔记</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/PHP/" style="font-size: 10px;">PHP</a> <a href="/tags/Python/" style="font-size: 13.33px;">Python</a> <a href="/tags/mips/" style="font-size: 13.33px;">mips</a> <a href="/tags/writeup/" style="font-size: 20px;">writeup</a> <a href="/tags/%E6%B1%87%E7%BC%96/" style="font-size: 16.67px;">汇编</a> <a href="/tags/%E7%AC%94%E8%AE%B0/" style="font-size: 16.67px;">笔记</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/03/10/2020-03-10-python-bytecode/">Python字节码</a>
+          </li>
+        
+          <li>
+            <a href="/2020/01/11/2020-01-11-MIPS%E6%B1%87%E7%BC%96%E7%AC%94%E8%AE%B0/">MIPS汇编笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/01/11/2020-01-11-babymips/">babymips(XCTF 4th-QCTF-2018)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/11/12/2019-11-12-wtfPython/">Python奇技淫巧</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/25/2019-10-25-huibianjichu/">汇编基础</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>
