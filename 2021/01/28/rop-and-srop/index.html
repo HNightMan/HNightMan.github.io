@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="google" content="notranslate" />
     <meta name="keywords" content="May,"> 
-    <meta name="description" content="May&#39;s Blog,自从gitpage被墙掉之后一年没有更过博客了，这一年中学了pwn相关的知识，有时间把笔记整理一下发出来。
+    <meta name="description" content="May&#39;s Blog,一年没有更过博客了，这一年中在学了pwn相关，现在把博客重新整活过来，之后有时间把学的东西整理一下发出来。
 ROPROP的全称为Return-oriented programming（返回导向编程）,"> 
     <meta name="author" content="May"> 
     <link rel="alternative" href="atom.xml" title="May" type="application/atom+xml"> 
@@ -65,8 +65,19 @@ ROPROP的全称为Return-oriented programming（返回导向编程）,">
 
         </div>
         <div class="content markdown">
-            <p>自从gitpage被墙掉之后一年没有更过博客了，这一年中学了pwn相关的知识，有时间把笔记整理一下发出来。</p>
-<h1 id="ROP"><a href="#ROP" class="headerlink" title="ROP"></a>ROP</h1><p>ROP的全称为Return-oriented programming（返回导向编程），这是一种高级的内存攻击技术可以用来绕过现代操作系统的各种通用防御（比如内存不可执行和代码签名等）。<br>ROP是在程序中寻找以return</p>
+            <p>一年没有更过博客了，这一年中在学了pwn相关，现在把博客重新整活过来，之后有时间把学的东西整理一下发出来。</p>
+<h1 id="ROP"><a href="#ROP" class="headerlink" title="ROP"></a>ROP</h1><p>ROP的全称为Return-oriented programming（返回导向编程），这是一种高级的内存攻击技术可以用来绕过现代操作系统的各种通用防御（比如内存不可执行和代码签名等）。<br>ROP的主要思想就是攻击者不需要自己注入代码（因为在DEP的保护下，注入的代码不可执行），而是利用系统已有的代码片段来构造攻击。这里之所以叫ROP，是因为其改变控制流的方式是用系统中的<code>return</code>指令（比如x86中的<code>ret</code>）。</p>
+<p>ROP需要一个栈溢出，让攻击者可以修改栈上的数据，然后在程序中寻找一系列以<code>return</code>结尾的指令片段（我们将其称为”gadgets”）将其填入栈中合适的位置，通过<code>return</code>控制程序流将其连接起来，通过<code>pop</code>、<code>mov</code>等指令把写入栈相应位置的数据传到寄存器中，达到控制程序的目的。</p>
+<p>gadgets可以用<code>ROPgadget</code>进行搜索</p>
+<p>依赖安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install capstone</span><br></pre></td></tr></table></figure>
+
+<p>ROPgadget安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install ROPgadget</span><br></pre></td></tr></table></figure>
+
+<p>使用：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ROPgadget --binary elf --only <span class="string">&#x27;pop|ret&#x27;</span></span><br></pre></td></tr></table></figure>
+
 
             <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
             <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="true">
