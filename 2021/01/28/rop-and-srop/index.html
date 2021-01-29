@@ -5,12 +5,13 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Archive: 2019/5</title>
+    <title>rop_and_srop - May</title>
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="google" content="notranslate" />
     <meta name="keywords" content="May,"> 
-    <meta name="description" content="May&#39;s Blog,"> 
+    <meta name="description" content="May&#39;s Blog,自从gitpage被墙掉之后一年没有更过博客了，这一年中学了pwn相关的知识，有时间把笔记整理一下发出来。
+ROPROP的全称为Return-oriented programming（返回导向编程）,"> 
     <meta name="author" content="May"> 
     <link rel="alternative" href="atom.xml" title="May" type="application/atom+xml"> 
     <link rel="icon" href="https://s2.ax1x.com/2019/07/10/Z6aCSs.png"> 
@@ -35,109 +36,100 @@
 <body class="loading">
     <span id="config-title" style="display:none">May</span>
     <div id="loader"></div>
-    <div id="single" class="page">
-    <div id="top">
-        <a class="iconfont icon-left image-icon" href="javascript:history.back()"></a>
-    </div>
-    <div class="section">
-        <div class="article">
-            <div class="main">
-                <div class="content">
-                    <div class="timeline">
-                      <h2 class="timeline-title">归档: 13篇</h2><hr>
-                      
-                      
-                        
-                          <h3 class="timeline-subtitle">2021</h3>
-                        
-                        <div class="timeline-item">
-                          <time>2021-01-28</time>
-                          <a target="_self" href="/2021/01/28/rop-and-srop/">rop_and_srop</a>
-                        </div>
-                      
-                        
-                          <h3 class="timeline-subtitle">2020</h3>
-                        
-                        <div class="timeline-item">
-                          <time>2020-03-10</time>
-                          <a target="_self" href="/2020/03/10/python-bytecode/">Python字节码</a>
-                        </div>
-                      
-                        
-                        <div class="timeline-item">
-                          <time>2020-01-11</time>
-                          <a target="_self" href="/2020/01/11/MIPS%E6%B1%87%E7%BC%96%E7%AC%94%E8%AE%B0/">MIPS汇编笔记</a>
-                        </div>
-                      
-                        
-                        <div class="timeline-item">
-                          <time>2020-01-11</time>
-                          <a target="_self" href="/2020/01/11/babymips/">babymips(XCTF 4th-QCTF-2018)</a>
-                        </div>
-                      
-                        
-                          <h3 class="timeline-subtitle">2019</h3>
-                        
-                        <div class="timeline-item">
-                          <time>2019-11-12</time>
-                          <a target="_self" href="/2019/11/12/wtfPython/">Python奇技淫巧</a>
-                        </div>
-                      
-                        
-                        <div class="timeline-item">
-                          <time>2019-10-25</time>
-                          <a target="_self" href="/2019/10/25/huibianjichu/">汇编基础</a>
-                        </div>
-                      
-                        
-                        <div class="timeline-item">
-                          <time>2019-10-19</time>
-                          <a target="_self" href="/2019/10/19/snertre/">SNERT招新题RE部分writeup</a>
-                        </div>
-                      
-                        
-                        <div class="timeline-item">
-                          <time>2019-07-19</time>
-                          <a target="_self" href="/2019/07/19/Holiday-Re-practice/">假期集训逆向</a>
-                        </div>
-                      
-                        
-                        <div class="timeline-item">
-                          <time>2019-06-24</time>
-                          <a target="_self" href="/2019/06/24/My_first_andriod_reverse/">Bugku安卓逆向</a>
-                        </div>
-                      
-                        
-                        <div class="timeline-item">
-                          <time>2019-05-24</time>
-                          <a target="_self" href="/2019/05/24/A_Re_writeup/">记一次外挂破解</a>
-                        </div>
-                      
-                        
-                        <div class="timeline-item">
-                          <time>2019-05-02</time>
-                          <a target="_self" href="/2019/05/02/simple_php_bugs/">关于简单的php函数漏洞和绕过</a>
-                        </div>
-                      
-                        
-                        <div class="timeline-item">
-                          <time>2019-05-01</time>
-                          <a target="_self" href="/2019/05/01/Begining_of_Web/">初入Web做的水题</a>
-                        </div>
-                      
-                        
-                        <div class="timeline-item">
-                          <time>2019-04-29</time>
-                          <a target="_self" href="/2019/04/29/Hello-World/">Hello World</a>
-                        </div>
-                      
-                    </div>
-                </div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="https://hnightanimal.top"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">rop_and_srop</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
             </div>
+            <div id="qr"></div>
         </div>
     </div>
+    <div class="scrollbar"></div>
 </div>
 
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">rop_and_srop</h1>
+        <div class="stuff">
+            <span>一月 28, 2021</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag">笔记</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <p>自从gitpage被墙掉之后一年没有更过博客了，这一年中学了pwn相关的知识，有时间把笔记整理一下发出来。</p>
+<h1 id="ROP"><a href="#ROP" class="headerlink" title="ROP"></a>ROP</h1><p>ROP的全称为Return-oriented programming（返回导向编程），这是一种高级的内存攻击技术可以用来绕过现代操作系统的各种通用防御（比如内存不可执行和代码签名等）。<br>ROP是在程序中寻找以return</p>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="true">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title='0' data-url='http://music.163.com/song/media/outer/url?id=420154189.mp3'></li>
+                        
+                    
+                        
+                            <li title='1' data-url='http://music.163.com/song/media/outer/url?id=527957820.mp3'></li>
+                        
+                    
+                        
+                            <li title='2' data-url='http://music.163.com/song/media/outer/url?id=1645064.mp3'></li>
+                        
+                    
+                        
+                            <li title='3' data-url='http://music.163.com/song/media/outer/url?id=39635710.mp3'></li>
+                        
+                    
+                        
+                            <li title='4' data-url='http://music.163.com/song/media/outer/url?id=464448450.mp3'></li>
+                        
+                    
+                        
+                            <li title='5' data-url='http://music.163.com/song/media/outer/url?id=33875750.mp3'></li>
+                        
+                    
+                        
+                            <li title='6' data-url='http://music.163.com/song/media/outer/url?id=864711417.mp3'></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+    <div id='gitalk-container' class="comment link"
+		data-enable='true'
+        data-ae='true'
+        data-ci='b4b7681976b71e1c4b85'
+        data-cs='1c0802349efe79789f01f3b548e96a4baf049907'
+        data-r='HNightMan.github.io'
+        data-o='HNightMan'
+        data-a='HNightMan'
+        data-d='false'
+    >查看评论</div>
+
+
+    </div>
+    
+        <div class='side'>
+			<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#ROP"><span class="toc-number">1.</span> <span class="toc-text">ROP</span></a></li></ol>	
+        </div>
+    
+</div>
+
+
+    </div>
+</div>
 </body>
 
 <script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
