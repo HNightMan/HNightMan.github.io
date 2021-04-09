@@ -26,6 +26,51 @@
       </tags>
   </entry>
   <entry>
+    <title>记一次外挂破解</title>
+    <url>/2019/05/24/A_Re_writeup/</url>
+    <content><![CDATA[<p>学校信息安全实验室招新，学长找了一个游戏的外挂给我们破解，游戏叫Risk of Rain 2。</p>
+<p>外挂界面：</p>
+<p><img src="https://s2.ax1x.com/2019/09/11/nahQRH.png"></p>
+<p><strong>要求：</strong></p>
+<ul>
+<li><ol>
+<li>找到作者的IP；</li>
+</ol>
+</li>
+<li><ol start="2">
+<li>让外挂软件可以多开；</li>
+</ol>
+</li>
+<li><ol start="3">
+<li>破解外挂的付费功能，使用本来需要付费才能使用的无限跳跃。</li>
+</ol>
+</li>
+</ul>
+<p>64位程序，用x64dbg打开调试，F9一直跑，发现窗口还没打开程序就结束了，应该有反调试，去找常用反调试，可以 找到IsDebuggerPresent:</p>
+<p><img src="https://s2.ax1x.com/2019/09/11/nahWYF.png"></p>
+<p>双击找到该位置下断点后重新运行，程序会停在这里，再从堆栈调用里找到函数的入口点，发现关键跳转</p>
+<p><img src="https://s2.ax1x.com/2019/09/11/nahIyR.png"></p>
+<p><img src="https://s2.ax1x.com/2019/09/11/nah7ex.png"></p>
+<p>操作一下这个跳转就可以打开程序了，可以把上面的test改成cmp，也可以直接nop掉跳转，方法不唯一。</p>
+<p>IP很容易找，甚至不需要调试，直接搜索所有字符串，正则表达式筛选IP的格式就能找到</p>
+<p><img src="https://s2.ax1x.com/2019/09/11/nahbTK.png"></p>
+<p>破解多开我一开始是先开一个程序再用x64调试一个程序，一直单步步过，当步过一个call之后程序弹窗提示不能多开时就表示弹窗在这个call里面，于是下断点重开步入继续步过，找了很久之后找到了弹窗，往上可以找到关键跳转。</p>
+<p><img src="https://s2.ax1x.com/2019/09/11/nahXfe.png"></p>
+<p>后来发现其实可以直接搜索MessageBoxW找到它再从调用堆栈找到弹窗位置：</p>
+<p><img src="https://s2.ax1x.com/2019/09/11/na4DhD.png"></p>
+<p>破解付费，因为提示付费时有弹窗，所以也可以在MessageBosW下断点然后按CTRL+1使用付费功能程序就停在断点处，从调用堆栈找到函数入口，往上找跳到这里来的关键跳转</p>
+<p><img src="https://s2.ax1x.com/2019/09/11/na4WHP.png"></p>
+<p>改了之后就可以使用付费功能了，但是打了补丁之后外挂程序就不能实现开挂功能，猜想可能是开始的时候有检测程序是否被修改，暂时没有解决，之后解决了会添上。</p>
+]]></content>
+      <categories>
+        <category>Reverse</category>
+      </categories>
+      <tags>
+        <tag>writeup</tag>
+        <tag>汇编</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>关于简单的php函数漏洞和绕过</title>
     <url>/2019/05/02/simple_php_bugs/</url>
     <content><![CDATA[<p>先贴三张php官方类型比较的图</p>
@@ -137,51 +182,6 @@
       <tags>
         <tag>writeup</tag>
         <tag>Android</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>记一次外挂破解</title>
-    <url>/2019/05/24/A_Re_writeup/</url>
-    <content><![CDATA[<p>学校信息安全实验室招新，学长找了一个游戏的外挂给我们破解，游戏叫Risk of Rain 2。</p>
-<p>外挂界面：</p>
-<p><img src="https://s2.ax1x.com/2019/09/11/nahQRH.png"></p>
-<p><strong>要求：</strong></p>
-<ul>
-<li><ol>
-<li>找到作者的IP；</li>
-</ol>
-</li>
-<li><ol start="2">
-<li>让外挂软件可以多开；</li>
-</ol>
-</li>
-<li><ol start="3">
-<li>破解外挂的付费功能，使用本来需要付费才能使用的无限跳跃。</li>
-</ol>
-</li>
-</ul>
-<p>64位程序，用x64dbg打开调试，F9一直跑，发现窗口还没打开程序就结束了，应该有反调试，去找常用反调试，可以 找到IsDebuggerPresent:</p>
-<p><img src="https://s2.ax1x.com/2019/09/11/nahWYF.png"></p>
-<p>双击找到该位置下断点后重新运行，程序会停在这里，再从堆栈调用里找到函数的入口点，发现关键跳转</p>
-<p><img src="https://s2.ax1x.com/2019/09/11/nahIyR.png"></p>
-<p><img src="https://s2.ax1x.com/2019/09/11/nah7ex.png"></p>
-<p>操作一下这个跳转就可以打开程序了，可以把上面的test改成cmp，也可以直接nop掉跳转，方法不唯一。</p>
-<p>IP很容易找，甚至不需要调试，直接搜索所有字符串，正则表达式筛选IP的格式就能找到</p>
-<p><img src="https://s2.ax1x.com/2019/09/11/nahbTK.png"></p>
-<p>破解多开我一开始是先开一个程序再用x64调试一个程序，一直单步步过，当步过一个call之后程序弹窗提示不能多开时就表示弹窗在这个call里面，于是下断点重开步入继续步过，找了很久之后找到了弹窗，往上可以找到关键跳转。</p>
-<p><img src="https://s2.ax1x.com/2019/09/11/nahXfe.png"></p>
-<p>后来发现其实可以直接搜索MessageBoxW找到它再从调用堆栈找到弹窗位置：</p>
-<p><img src="https://s2.ax1x.com/2019/09/11/na4DhD.png"></p>
-<p>破解付费，因为提示付费时有弹窗，所以也可以在MessageBosW下断点然后按CTRL+1使用付费功能程序就停在断点处，从调用堆栈找到函数入口，往上找跳到这里来的关键跳转</p>
-<p><img src="https://s2.ax1x.com/2019/09/11/na4WHP.png"></p>
-<p>改了之后就可以使用付费功能了，但是打了补丁之后外挂程序就不能实现开挂功能，猜想可能是开始的时候有检测程序是否被修改，暂时没有解决，之后解决了会添上。</p>
-]]></content>
-      <categories>
-        <category>Reverse</category>
-      </categories>
-      <tags>
-        <tag>writeup</tag>
-        <tag>汇编</tag>
       </tags>
   </entry>
   <entry>
@@ -308,8 +308,8 @@
         <category>Reverse</category>
       </categories>
       <tags>
-        <tag>笔记</tag>
         <tag>汇编</tag>
+        <tag>笔记</tag>
       </tags>
   </entry>
   <entry>
@@ -509,6 +509,75 @@ PIE:      No PIE (0x400000)</code></pre>
       </categories>
       <tags>
         <tag>笔记</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>C++虚函数表</title>
+    <url>/2021/04/09/C-virtual-table/</url>
+    <content><![CDATA[<h1 id="C-虚函数"><a href="#C-虚函数" class="headerlink" title="C++虚函数"></a>C++虚函数</h1><p>参考<a href="https://blog.csdn.net/haoel/article/details/1948051">C++虚函数表解析</a></p>
+<p>C++中的虚函数的作用主要是实现了多态的机制。关于多态，简而言之就是用父类型别的指针指向其子类的实例，然后通过父类的指针调用实际子类的成员函数。这种技术可以让父类的指针有“多种形态”，这是一种泛型技术。所谓泛型技术，说白了就是试图使用不变的代码来实现可变的算法。</p>
+<h2 id="虚函数表"><a href="#虚函数表" class="headerlink" title="虚函数表"></a>虚函数表</h2><p>C++的虚函数是通过一张虚函数表实现的，在这个表中存放的是类的虚函数的地址，这张表解决了继承、覆盖的问题，保证其容真实反应实际的函数。在有虚函数的类的实例中该类的虚函数表地址被分配在了这个实例的内存中。C++的编译器是保证虚函数表的地址存放在实例内存的开头。</p>
+<p>实例：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span></span><br><span class="line">	<span class="keyword">public</span>:</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">f</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Base::f&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">g</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Base::g&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">h</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Base::h&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">typedef</span> <span class="title">void</span><span class="params">(*Fun)</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line">	Base b; </span><br><span class="line">	<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;虚函数表地址：&quot;</span> &lt;&lt; (<span class="keyword">int</span>*)*(<span class="keyword">int</span>*)(&amp;b) &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">	<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;虚函数表第一个函数地址：&quot;</span> &lt;&lt; (<span class="keyword">int</span>*)*(<span class="keyword">int</span>*)*(<span class="keyword">int</span>*)(&amp;b) &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">	Fun pFun = (Fun)*((<span class="keyword">int</span>*)*(<span class="keyword">int</span>*)(&amp;b));</span><br><span class="line">	pFun();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//运行结果</span></span><br><span class="line"><span class="comment">//虚函数表地址：0x48e338</span></span><br><span class="line"><span class="comment">//虚函数表第一个函数地址：0x421c20</span></span><br><span class="line"><span class="comment">//Base::f</span></span><br></pre></td></tr></table></figure>
+
+<p>通过实例看到我们可以将实例地址<code>&amp;b</code>转化成int指针<code>int *</code>，之后因为虚函数表在实例首地址，对其取值就能得到虚函数表的地址，再对其取值就能得到虚函数表第一个函数的地址，同理可得虚函数中其他函数的地址：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">(Fun)*((<span class="keyword">int</span>*)*(<span class="keyword">int</span>*)(&amp;b)+<span class="number">0</span>);  <span class="comment">// Base::f()</span></span><br><span class="line">(Fun)*((<span class="keyword">int</span>*)*(<span class="keyword">int</span>*)(&amp;b)+<span class="number">1</span>);  <span class="comment">// Base::g()</span></span><br><span class="line">(Fun)*((<span class="keyword">int</span>*)*(<span class="keyword">int</span>*)(&amp;b)+<span class="number">2</span>);  <span class="comment">// Base::h()</span></span><br></pre></td></tr></table></figure>
+
+<p>内存图示：</p>
+<p><img src="https://z3.ax1x.com/2021/04/09/cUSCEq.jpg"></p>
+<p>上面的图是嫖的网友的，按网友所说他在虚函数表的最后多加了一个结点，这是虚函数表的结束结点，就像字符串的结束符”<em>/0</em>“一样，其标志了虚函数表的结束。这个结束标志的值在不同的编译器下是不同的。在<em>WinXP+VS2003</em>下，这个值是<em>NULL</em>。而在<em>Ubuntu 7.10 + Linux 2.6.22 + GCC 4.1.3</em>下，这个值是如果<em>1</em>，表示还有下一个虚函数表，如果值是<em>0</em>，表示是最后一个虚函数表。</p>
+<p>而我在<em>gcc version 10.2.1 20210110 (Debian 10.2.1-6)<em>环境下调试的结果是实例首地址的存放的是</em>vtable+8</em>的地址，而虚函数也是从<em>vtable+8</em>的位置开始存，只是在<em>vtable</em>开始的位置有一个’/0’，<em>vtable+4</em>的位置有一个不知道有啥用的函数，猜测可能是把虚函数表结束标识换成开始标识了吧，因为虚函数表在内存中是相邻存放的，所以开头标识或结束标识其实没差~~吧。</p>
+<h2 id="一般继承-无虚函数覆盖"><a href="#一般继承-无虚函数覆盖" class="headerlink" title="一般继承(无虚函数覆盖)"></a>一般继承(无虚函数覆盖)</h2><p>若继承关系中子类没有重写任何父类的虚函数：</p>
+<p><img src="https://z3.ax1x.com/2021/04/09/cUCxJ0.jpg"></p>
+<p>子类的虚函数表是这样的：</p>
+<p><img src="https://z3.ax1x.com/2021/04/09/cUii1f.jpg"></p>
+<p>可以看到一下几点</p>
+<ol>
+<li>虚函数按照声明顺序存放在表中</li>
+<li>父类的虚函数在前，子类自己的在后</li>
+</ol>
+<h2 id="一般继承-有虚函数覆盖"><a href="#一般继承-有虚函数覆盖" class="headerlink" title="一般继承(有虚函数覆盖)"></a>一般继承(有虚函数覆盖)</h2><p>继承关系中子类有重写父类的虚函数：</p>
+<p><img src="https://z3.ax1x.com/2021/04/09/cUFrR0.jpg"></p>
+<p>子类虚函数表：</p>
+<p><img src="https://z3.ax1x.com/2021/04/09/cUFcsU.jpg"></p>
+<ol>
+<li>子类的虚函数表会包含父类的虚函数表</li>
+<li>子类重写的f()函数替换了父类虚函数表中的f()</li>
+<li>子类自己的虚函数跟在父类虚函数的后面</li>
+</ol>
+<h2 id="多重继承-无虚函数覆盖"><a href="#多重继承-无虚函数覆盖" class="headerlink" title="多重继承(无虚函数覆盖)"></a>多重继承(无虚函数覆盖)</h2><p><img src="https://z3.ax1x.com/2021/04/09/cUAIKK.jpg"></p>
+<p><img src="https://z3.ax1x.com/2021/04/09/cUAoDO.jpg"></p>
+<ol>
+<li>将每个父类的虚函数表拷贝形成自己的虚函数表</li>
+<li>按照继承顺序将其放在实例内存的前n个地址(n=继承的父类数，地址宽度取决于程序位数)</li>
+<li>子类的虚函数跟在拷贝自第一个父类的虚函数表后</li>
+<li>需要注意的是继承自Base2和Base3的虚函数表虽然内容和父类的完全一样，但依然拷贝了一份，并没有直接使用父类的虚函数表。</li>
+</ol>
+<h2 id="多重继承-有虚函数覆盖"><a href="#多重继承-有虚函数覆盖" class="headerlink" title="多重继承(有虚函数覆盖)"></a>多重继承(有虚函数覆盖)</h2><p><img src="https://z3.ax1x.com/2021/04/09/cUVCy6.jpg"></p>
+<p><img src="https://z3.ax1x.com/2021/04/09/cUVPOK.jpg"></p>
+<ol>
+<li><p>将每个父类的虚函数表拷贝，替换其中重写的虚函数地址，形成自己的虚函数表</p>
+</li>
+<li><p>按照继承顺序将其放在实例内存的前n个地址</p>
+</li>
+<li><p>子类的虚函数跟在拷贝自第一个父类的虚函数表后</p>
+</li>
+<li><p>需要注意的是三个*Derive::f()*存放的其实是三个不同的地址，但只有继承自第一个父类的表中的重写函数才是函数真正的地址，其他的是一个跳转，跳转到第一个表中真正的地址，如图：</p>
+</li>
+</ol>
+<p><img src="https://z3.ax1x.com/2021/04/09/cUZFcq.png"></p>
+<h2 id="安全性"><a href="#安全性" class="headerlink" title="安全性"></a>安全性</h2><h3 id="可以通过父类指针访问子类自己的虚函数"><a href="#可以通过父类指针访问子类自己的虚函数" class="headerlink" title="可以通过父类指针访问子类自己的虚函数"></a>可以通过父类指针访问子类自己的虚函数</h3><p>父类指针指向子类，正常来说是我无法访问子类自己的虚函数的，但可以通过虚函数表的地址找到子类的虚函数执行</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span></span><br><span class="line">	<span class="keyword">public</span>:</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">f</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Base::f&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">g</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Base::g&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">h</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Base::h&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derive</span> :</span> <span class="keyword">public</span> Base&#123;</span><br><span class="line">	<span class="keyword">public</span>:</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">f</span><span class="params">()</span></span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Derive::f&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">g1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Derive::g1&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">typedef</span> <span class="title">void</span><span class="params">(*Fun)</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line">	Base *pBase=<span class="keyword">new</span>(Derive);</span><br><span class="line">	Fun pFun = (Fun)*((<span class="keyword">int</span>*)*(<span class="keyword">int</span>*)(pBase)+<span class="number">3</span>);</span><br><span class="line">	pFun();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//Derive::g1</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="访问non-public的虚函数"><a href="#访问non-public的虚函数" class="headerlink" title="访问non-public的虚函数"></a>访问<em>non-public</em>的虚函数</h3><p>如果父类的虚函数是<em>private</em>或是<em>protected</em>的，但这些非<em>public</em>的虚函数同样会存在于虚函数表中，所以，我们同样可以使用访问虚函数表的方式来访问这些<em>no-public</em>函数。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span></span><br><span class="line">	<span class="keyword">private</span>:</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">f</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Base::f&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">g</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Base::g&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">h</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Base::h&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derive</span> :</span> <span class="keyword">public</span> Base&#123;</span><br><span class="line">	<span class="keyword">public</span>:</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">f</span><span class="params">()</span></span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Derive::f&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">g1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Derive::g1&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">typedef</span> <span class="title">void</span><span class="params">(*Fun)</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line">	Base *pBase=<span class="keyword">new</span>(Derive);</span><br><span class="line">	Fun pFun = (Fun)*((<span class="keyword">int</span>*)*(<span class="keyword">int</span>*)(pBase)+<span class="number">1</span>);</span><br><span class="line">	pFun();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>C++</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
       </tags>
   </entry>
   <entry>
@@ -1240,8 +1309,8 @@ PIE:      No PIE (0x400000)</code></pre>
         <category>Reverse</category>
       </categories>
       <tags>
-        <tag>笔记</tag>
         <tag>汇编</tag>
+        <tag>笔记</tag>
         <tag>mips</tag>
       </tags>
   </entry>
