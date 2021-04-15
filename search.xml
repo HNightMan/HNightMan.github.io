@@ -26,6 +26,33 @@
       </tags>
   </entry>
   <entry>
+    <title>关于简单的php函数漏洞和绕过</title>
+    <url>/2019/05/02/simple_php_bugs/</url>
+    <content><![CDATA[<p>先贴三张php官方类型比较的图</p>
+<p><img src="https://s2.ax1x.com/2019/09/11/na4Hjs.png"></p>
+<p><img src="https://s2.ax1x.com/2019/09/11/na4qun.png"></p>
+<p><img src="https://s2.ax1x.com/2019/09/11/na4OH0.png"></p>
+<p>php是一种弱类型语言，颇具灵活性，但也因此存在一些绕过的奇技淫巧，一些基础ctf题里也有php代码审计这一类，下面记录一些简单php函数绕过点，如有错误还请指点。</p>
+<h5 id="extrac"><a href="#extrac" class="headerlink" title="extrac():"></a>extrac():</h5><p>可传入一个带键值的数组，分别把键值赋值给对应键名的变量，若变量存在则会覆盖原值，可以用这个特性改变已存在变量的值。</p>
+<h5 id="file-get-contents"><a href="#file-get-contents" class="headerlink" title="file_get_contents():"></a>file_get_contents():</h5><p>传入一个文件名，将文件内容读取至一个字符串中，但是如果找不到该文件的话它会返回FALSE。</p>
+<h5 id="strcmp-v1-v2"><a href="#strcmp-v1-v2" class="headerlink" title="strcmp($v1,$v2):"></a>strcmp($v1,$v2):</h5><p>比较两个值，若$v1&lt;$v2返回&lt;0,若$v&gt;$v2返回&gt;0，若相等返回0，但是这个函数不能处理数组，而且遇到数组报错之后会返回NULL。</p>
+<h5 id="md5"><a href="#md5" class="headerlink" title="md5():"></a>md5():</h5><p>md5函数存在碰撞问题，即多个明文加密后密文相同，php的0e开头字符串会被判定成科学计数法的数字也常常和md5联系在一起，还有md5函数不能处理数组，遇到数组也会返回NULL，另外sha1()函数处理数组也会返回NULL。</p>
+<h5 id="strpos-str1-str2-："><a href="#strpos-str1-str2-：" class="headerlink" title="strpos($str1,$str2)："></a>strpos($str1,$str2)：</h5><p>查找$str2在$str1中第一次出现的位置（0开始），若没有出现则返回FALSE，若是$str1为数组则会返回NULL，$str2为数组会返回FALSE。</p>
+<p>另外还有类似函数:</p>
+<p>stripos(): 查找首次出现的位置，不区分大小写；strrpos(): 查找最后一次出现的位置，区分大小写；strripos(): 查找最后一次出现的位置，不区分大小写。</p>
+<h5 id="大于小于等于符号判断大小"><a href="#大于小于等于符号判断大小" class="headerlink" title="大于小于等于符号判断大小:"></a>大于小于等于符号判断大小:</h5><p>php中 如果判断大小时遇到数组，优先认为数组较大，然后才是数字和字符串，在数组间的比较中先判断数组的大小（数组中有多少数），若大小相同再依次从前往后判断数的大小，相等则继续判断下一位，不相等则返回结果。字符串与数字比较时若字符串全由数字组成则转化成数字比较，否则转化成字符串比较。</p>
+<h5 id="ereg"><a href="#ereg" class="headerlink" title="ereg():"></a>ereg():</h5><p>php中ereg()函数时用来在字符串中查找是否含有指定字串，含有则返回TRUE否则返回FALSE，大小写敏感。</p>
+<p>它处理数组会返回NULL，字符串中遇到%00会认为字符串结束，不再匹配后面的字符。这个函数在php5以后就已经被舍弃了。</p>
+]]></content>
+      <categories>
+        <category>Web</category>
+      </categories>
+      <tags>
+        <tag>笔记</tag>
+        <tag>PHP</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>记一次外挂破解</title>
     <url>/2019/05/24/A_Re_writeup/</url>
     <content><![CDATA[<p>学校信息安全实验室招新，学长找了一个游戏的外挂给我们破解，游戏叫Risk of Rain 2。</p>
@@ -68,33 +95,6 @@
       <tags>
         <tag>writeup</tag>
         <tag>汇编</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>关于简单的php函数漏洞和绕过</title>
-    <url>/2019/05/02/simple_php_bugs/</url>
-    <content><![CDATA[<p>先贴三张php官方类型比较的图</p>
-<p><img src="https://s2.ax1x.com/2019/09/11/na4Hjs.png"></p>
-<p><img src="https://s2.ax1x.com/2019/09/11/na4qun.png"></p>
-<p><img src="https://s2.ax1x.com/2019/09/11/na4OH0.png"></p>
-<p>php是一种弱类型语言，颇具灵活性，但也因此存在一些绕过的奇技淫巧，一些基础ctf题里也有php代码审计这一类，下面记录一些简单php函数绕过点，如有错误还请指点。</p>
-<h5 id="extrac"><a href="#extrac" class="headerlink" title="extrac():"></a>extrac():</h5><p>可传入一个带键值的数组，分别把键值赋值给对应键名的变量，若变量存在则会覆盖原值，可以用这个特性改变已存在变量的值。</p>
-<h5 id="file-get-contents"><a href="#file-get-contents" class="headerlink" title="file_get_contents():"></a>file_get_contents():</h5><p>传入一个文件名，将文件内容读取至一个字符串中，但是如果找不到该文件的话它会返回FALSE。</p>
-<h5 id="strcmp-v1-v2"><a href="#strcmp-v1-v2" class="headerlink" title="strcmp($v1,$v2):"></a>strcmp($v1,$v2):</h5><p>比较两个值，若$v1&lt;$v2返回&lt;0,若$v&gt;$v2返回&gt;0，若相等返回0，但是这个函数不能处理数组，而且遇到数组报错之后会返回NULL。</p>
-<h5 id="md5"><a href="#md5" class="headerlink" title="md5():"></a>md5():</h5><p>md5函数存在碰撞问题，即多个明文加密后密文相同，php的0e开头字符串会被判定成科学计数法的数字也常常和md5联系在一起，还有md5函数不能处理数组，遇到数组也会返回NULL，另外sha1()函数处理数组也会返回NULL。</p>
-<h5 id="strpos-str1-str2-："><a href="#strpos-str1-str2-：" class="headerlink" title="strpos($str1,$str2)："></a>strpos($str1,$str2)：</h5><p>查找$str2在$str1中第一次出现的位置（0开始），若没有出现则返回FALSE，若是$str1为数组则会返回NULL，$str2为数组会返回FALSE。</p>
-<p>另外还有类似函数:</p>
-<p>stripos(): 查找首次出现的位置，不区分大小写；strrpos(): 查找最后一次出现的位置，区分大小写；strripos(): 查找最后一次出现的位置，不区分大小写。</p>
-<h5 id="大于小于等于符号判断大小"><a href="#大于小于等于符号判断大小" class="headerlink" title="大于小于等于符号判断大小:"></a>大于小于等于符号判断大小:</h5><p>php中 如果判断大小时遇到数组，优先认为数组较大，然后才是数字和字符串，在数组间的比较中先判断数组的大小（数组中有多少数），若大小相同再依次从前往后判断数的大小，相等则继续判断下一位，不相等则返回结果。字符串与数字比较时若字符串全由数字组成则转化成数字比较，否则转化成字符串比较。</p>
-<h5 id="ereg"><a href="#ereg" class="headerlink" title="ereg():"></a>ereg():</h5><p>php中ereg()函数时用来在字符串中查找是否含有指定字串，含有则返回TRUE否则返回FALSE，大小写敏感。</p>
-<p>它处理数组会返回NULL，字符串中遇到%00会认为字符串结束，不再匹配后面的字符。这个函数在php5以后就已经被舍弃了。</p>
-]]></content>
-      <categories>
-        <category>Web</category>
-      </categories>
-      <tags>
-        <tag>笔记</tag>
-        <tag>PHP</tag>
       </tags>
   </entry>
   <entry>
@@ -308,8 +308,8 @@
         <category>Reverse</category>
       </categories>
       <tags>
-        <tag>汇编</tag>
         <tag>笔记</tag>
+        <tag>汇编</tag>
       </tags>
   </entry>
   <entry>
@@ -512,6 +512,52 @@ PIE:      No PIE (0x400000)</code></pre>
       </tags>
   </entry>
   <entry>
+    <title>Frida apk hook</title>
+    <url>/2021/04/15/frida-hook/</url>
+    <content><![CDATA[<h1 id="Frida简介"><a href="#Frida简介" class="headerlink" title="Frida简介"></a>Frida简介</h1><p>frida是一款基于python + javascript 的hook框架，可运行在android、ios、linux、windows、macos等各平台，主要使用动态二进制插桩技术。frida分为两部分，服务端运行在目标机上，通过注入进程的方式来实现劫持应用函数，另一部分运行在系统机器上。frida上层接口支持js、python、c等。</p>
+<p><a href="https://github.com/frida">Frida官方github地址</a></p>
+<h1 id="Frida安装"><a href="#Frida安装" class="headerlink" title="Frida安装"></a>Frida安装</h1><ol>
+<li><p>安装python3</p>
+</li>
+<li><p>pip安装frida模块</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pip install frida</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>pip安装frida-tools模块</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pip install frida-tools</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>下载运行在目标机器上的服务端:<a href="https://github.com/frida/frida/releases">官方地址</a>，要根据目标机器cpu架构选择。可以在<code>/proc/cpuinfo</code>中查看cpu信息。</p>
+</li>
+<li><p>adb连接手机</p>
+</li>
+<li><p>在手机上运行该服务端程序并进行端口映射</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">adb push frida-server-14.2.14-android-x86 /data/local/tmp</span><br><span class="line">adb forward tcp:27042 tcp:27042</span><br><span class="line">adb shell</span><br><span class="line">cd /data/local/tmp</span><br><span class="line">chmod +x frida-server-14.2.14-android-x86</span><br><span class="line">./frida-server-14.2.14-android-x86</span><br></pre></td></tr></table></figure>
+
+<p>本机执行命令<code>frida-ps -U</code>进行测试，若成功打印手机端的进程则表示安装成功。</p>
+</li>
+</ol>
+<h1 id="Frida-hook-Java层"><a href="#Frida-hook-Java层" class="headerlink" title="Frida hook Java层"></a>Frida hook Java层</h1><p>以攻防世界的Ph0en1x-100为例，jeb查看Java代码找到关键判断：</p>
+<p><img src="https://z3.ax1x.com/2021/04/12/cDy5in.png"></p>
+<p>用getSecret()分别处理getFlag()和encrypt(sInput)后将两个值比较，sInput是输入，只需要让getFlag()和encrypt(sInput)的值相同即可，ida查看so文件发现encrypt()函数只是将输入字符串的每一位ascii码-1，而getFlag()函数没有输入，故返回值不变，可以通过hook得到返回值。</p>
+<p>尝试修改getSecret()的返回值为”qaq”，脚本：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> frida,sys <span class="comment">#导入模块</span></span><br><span class="line"></span><br><span class="line">jscode=<span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Java.perform(function()&#123;</span></span><br><span class="line"><span class="string">        var MainActivity=Java.use(&#x27;com.ph0en1x.android_crackme.MainActivity&#x27;);  //获取MainActivity类 </span></span><br><span class="line"><span class="string">        MainActivity.getSecret.implementation=function()&#123; //重写MainActivity.get_Secret()函数</span></span><br><span class="line"><span class="string">            send(&quot;hook ret qaq&quot;); //发送信息，回调python函数</span></span><br><span class="line"><span class="string">            return &quot;qaq&quot;; //返回字符串&quot;qaq&quot;</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">    &#125;);</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">on_message</span>(<span class="params">message,data</span>):</span> <span class="comment">#js中执行send函数后要回调的函数</span></span><br><span class="line">    print(message)</span><br><span class="line"></span><br><span class="line">process=frida.get_remote_device().attach(<span class="string">&#x27;com.ph0en1x.android_crackme&#x27;</span>) <span class="comment">#找到设备并劫持进程</span></span><br><span class="line">script=process.create_script(jscode) <span class="comment">#创建js脚本</span></span><br><span class="line">script.on(<span class="string">&#x27;message&#x27;</span>,on_message) <span class="comment">#加载回调函数</span></span><br><span class="line">script.load() <span class="comment">#加载脚本</span></span><br><span class="line">sys.stdin.read() <span class="comment">#不让python代码自动结束</span></span><br></pre></td></tr></table></figure>
+
+<p>先在手机端运行app，之后在本地执行python脚本，之后在手机端输入框随便输入:<br><img src="https://z3.ax1x.com/2021/04/15/c2zWGT.png"></p>
+<p>执行了两次<code>getSecret()</code>函数，发送了两次消息回调了两次<code>on_message()</code>，而两次<code>getSecret()</code>的返回值都被修改成了”qaq”，所以无论输入什么值都可以通过判断。</p>
+<h1 id="Frida-hook-Native层"><a href="#Frida-hook-Native层" class="headerlink" title="Frida hook Native层"></a>Frida hook Native层</h1><p>还说用这个程序，我们尝试hook Native层的<code>getFlag()</code>函数打印出返回值。需要说明一下关于so文件当中的函数，分为导出函数和未导出函数两种，导出函数打开IDA后能够在导出表中找到的函数就是导出函数，未导出函数则在导出表中寻找不到，一般来说静态编写的native函数都能在导出表中寻找到，而动态加载的则无法在导出表中发现。</p>
+<p>python脚本:</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> frida,sys</span><br><span class="line"></span><br><span class="line">jscode=<span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">Java.perform(function()&#123;</span></span><br><span class="line"><span class="string">Interceptor.attach(Module.findExportByName(&quot;libphcm.so&quot;,&quot;Java_com_ph0en1x_android_1crackme_MainActivity_getFlag&quot;),&#123; //找到libphcm.so中的getFlag()函数，函数名在ida中找</span></span><br><span class="line"><span class="string">        onEnter:function(args)&#123; //进入该函数前执行的函数，其中args是传入的参数，一般so层函数第一个参数都是JniEnv，第二个参数是jclass，从第三个参数开始才是我们java层传入的参数</span></span><br><span class="line"><span class="string">        &#125;,</span></span><br><span class="line"><span class="string">        onLeave:function(retval)&#123; //退出该函数时执行的代码，retval是返回值，在C语言中返回的是一个`char*`，需要转化成java的string</span></span><br><span class="line"><span class="string">            var String_java = Java.use(&#x27;java.lang.String&#x27;);</span></span><br><span class="line"><span class="string">            var args_4 = Java.cast(retval, String_java);</span></span><br><span class="line"><span class="string">            send(&quot;getFlag()==&gt;&quot;+args_4);</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">    &#125;);</span></span><br><span class="line"><span class="string">&#125;);</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">printMessage</span>(<span class="params">message,data</span>):</span></span><br><span class="line">    <span class="keyword">if</span> message[<span class="string">&#x27;type&#x27;</span>] == <span class="string">&#x27;send&#x27;</span>:</span><br><span class="line">        print(<span class="string">&#x27;[*] &#123;0&#125;&#x27;</span>.format(message[<span class="string">&#x27;payload&#x27;</span>]))</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        print(message)</span><br><span class="line"></span><br><span class="line">process=frida.get_remote_device().attach(<span class="string">&#x27;com.ph0en1x.android_crackme&#x27;</span>)</span><br><span class="line">script=process.create_script(jscode)</span><br><span class="line">script.on(<span class="string">&#x27;message&#x27;</span>,printMessage)</span><br><span class="line">script.load()</span><br><span class="line">sys.stdin.read()</span><br></pre></td></tr></table></figure>
+
+<p>先在手机端运行app，之后在本地执行python脚本，之后在手机端输入框随便输入:<br><img src="https://z3.ax1x.com/2021/04/15/cR97Zj.png"></p>
+<p>可以看到js代码把字符串的值发回给python，之后python打印出来了。</p>
+]]></content>
+      <categories>
+        <category>Reverse</category>
+      </categories>
+      <tags>
+        <tag>Andiroid</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>C++虚函数表</title>
     <url>/2021/04/09/C-virtual-table/</url>
     <content><![CDATA[<h1 id="C-虚函数"><a href="#C-虚函数" class="headerlink" title="C++虚函数"></a>C++虚函数</h1><p>参考<a href="https://blog.csdn.net/haoel/article/details/1948051">C++虚函数表解析</a></p>
@@ -578,6 +624,64 @@ PIE:      No PIE (0x400000)</code></pre>
       </categories>
       <tags>
         <tag>C++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Android动态调试</title>
+    <url>/2021/04/12/android-debug/</url>
+    <content><![CDATA[<p>用jeb和Android Studio进行apk无源码动态调试，以攻防世界的Ph0en1x-100为例</p>
+<p>jeb查看Java代码找到关键判断：</p>
+<p><img src="https://z3.ax1x.com/2021/04/12/cDy5in.png"></p>
+<p>用getSecret()分别处理getFlag()和encrypt(sInput)后将两个值比较，sInput是输入，只需要让getFlag()和encrypt(sInput)的值相同即可，ida查看so文件发现encrypt()函数只是将输入字符串的每一位ascii码-1，而getFlag()函数没有输入，故返回值不变，可以通过动态调试得到返回值。</p>
+<h3 id="jeb-夜神模拟器"><a href="#jeb-夜神模拟器" class="headerlink" title="jeb+夜神模拟器"></a>jeb+夜神模拟器</h3><p>apktool解包在<code>AndroidManifest.xml</code>中加<code>android:debuggable=&quot;true&quot;</code>后重新打包签名(略)</p>
+<p>在模拟器中安装重新打包签名好的apk，adb连接模拟器</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">adb connect 127.0.0.1:62001</span><br></pre></td></tr></table></figure>
+
+<p>查看连接</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">adb devices</span><br></pre></td></tr></table></figure>
+
+<p>jeb找到getFlag()函数在smali中的位置下断点：</p>
+<p><img src="https://z3.ax1x.com/2021/04/12/cDgTzt.png"></p>
+<p>模拟器中打开app，jeb附加进程调试：</p>
+<p><img src="https://z3.ax1x.com/2021/04/12/cDgxij.png"></p>
+<p>模拟器中输入数据点击确认，程序断下，查看数据：</p>
+<p><img src="https://z3.ax1x.com/2021/04/12/cD2uS1.png"></p>
+<p><code>move-result-object  v1</code>是将刚刚执行了的getFlag()的返回值赋给寄存器<code>v1</code>，在这里把<code>v1</code>的类型改成<code>string</code>就可以看到想要的返回值。</p>
+<h3 id="Android-Studio"><a href="#Android-Studio" class="headerlink" title="Android Studio"></a>Android Studio</h3><p>AS中安装smalidea插件，这里遇到问题，一直安装不上，最后把压缩包直接解压放进plugins文件夹重启即可，据说是因为我安装AS时把路径从C盘改成D盘。安装完成后会有这两个smali处理插件：</p>
+<p><img src="https://z3.ax1x.com/2021/04/12/cD5zHP.png"></p>
+<p>在设置中把<code>Smali Support</code>支持<code>*.smali</code>文件改成<code>Smalieda</code>支持<code>*.smali</code>文件:</p>
+<p><img src="https://z3.ax1x.com/2021/04/12/cDoprR.png"></p>
+<p>之后就可以在smali代码中下断点了。</p>
+<p>还是先apktool解包在<code>AndroidManifest.xml</code>中加<code>android:debuggable=&quot;true&quot;</code>后重新打包签名(略)</p>
+<p>AS的虚拟机不用adb手动连接端口，但是调试需要端口映射。</p>
+<p>AS中选择<code>Profile or Debug APK</code>打开重新打包签名后的apk，新建一个remote调试配置：</p>
+<p><img src="https://z3.ax1x.com/2021/04/12/cD4tMR.png"></p>
+<p>记住端口号5005。</p>
+<p>在虚拟机上运行app，获得包名/主activity名：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">adb shell &quot;dumpsys activity top | grep ACTIVITY&quot;</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">  ACTIVITY com.android.launcher3/.Launcher 3f4d30e pid=2795</span></span><br><span class="line"><span class="meta">#</span><span class="bash">  ACTIVITY com.ph0en1x.android_crackme/.MainActivity df4d3f5 pid=5714</span></span><br></pre></td></tr></table></figure>
+
+<p>  以调试模式启动app:</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">adb shell am start -D -n com.ph0en1x.android_crackme/.MainActivity</span><br></pre></td></tr></table></figure>
+
+<p>查看以调试模式启动的进程pid：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">adb shell &quot;ps | grep crackme&quot;</span><br><span class="line"><span class="meta">#</span><span class="bash">u0_a104       5777  1619 1840024  80608 futex_wait_queue_me 0 S com.ph0en1x.android_crackme</span></span><br></pre></td></tr></table></figure>
+
+<p>端口映射:</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">adb forward tcp:5005 jdwp:5777</span><br></pre></td></tr></table></figure>
+
+<p>在AS中附加进程即可开始调试</p>
+<p><img src="https://z3.ax1x.com/2021/04/12/cDoZxH.png"></p>
+<p>需要注意的点：</p>
+<ol>
+<li>AS有Google Play的虚拟机无法root，所以需要创建一个没有Google Play的虚拟机</li>
+<li>我AS动态调试看不到寄存器的值</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Reverse</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
       </tags>
   </entry>
   <entry>
@@ -1309,8 +1413,8 @@ PIE:      No PIE (0x400000)</code></pre>
         <category>Reverse</category>
       </categories>
       <tags>
-        <tag>汇编</tag>
         <tag>笔记</tag>
+        <tag>汇编</tag>
         <tag>mips</tag>
       </tags>
   </entry>
@@ -1592,64 +1696,6 @@ PIE:      No PIE (0x400000)</code></pre>
       <tags>
         <tag>笔记</tag>
         <tag>Python</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Android动态调试</title>
-    <url>/2021/04/12/android-debug/</url>
-    <content><![CDATA[<p>用jeb和Android Studio进行apk无源码动态调试，以攻防世界的Ph0en1x-100为例</p>
-<p>jeb查看Java代码找到关键判断：</p>
-<p><img src="https://z3.ax1x.com/2021/04/12/cDy5in.png"></p>
-<p>用getSecret()分别处理getFlag()和encrypt(sInput)后将两个值比较，sInput是输入，只需要让getFlag()和encrypt(sInput)的值相同即可，ida查看so文件发现encrypt()函数只是将输入字符串的每一位ascii码-1，而getFlag()函数没有输入，故返回值不变，可以通过动态调试得到返回值。</p>
-<h3 id="jeb-夜神模拟器"><a href="#jeb-夜神模拟器" class="headerlink" title="jeb+夜神模拟器"></a>jeb+夜神模拟器</h3><p>apktool解包在<code>AndroidManifest.xml</code>中加<code>android:debuggable=&quot;true&quot;</code>后重新打包签名(略)</p>
-<p>在模拟器中安装重新打包签名好的apk，adb连接模拟器</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">adb connect 127.0.0.1:62001</span><br></pre></td></tr></table></figure>
-
-<p>查看连接</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">adb devices</span><br></pre></td></tr></table></figure>
-
-<p>jeb找到getFlag()函数在smali中的位置下断点：</p>
-<p><img src="https://z3.ax1x.com/2021/04/12/cDgTzt.png"></p>
-<p>模拟器中打开app，jeb附加进程调试：</p>
-<p><img src="https://z3.ax1x.com/2021/04/12/cDgxij.png"></p>
-<p>模拟器中输入数据点击确认，程序断下，查看数据：</p>
-<p><img src="https://z3.ax1x.com/2021/04/12/cD2uS1.png"></p>
-<p><code>move-result-object  v1</code>是将刚刚执行了的getFlag()的返回值赋给寄存器<code>v1</code>，在这里把<code>v1</code>的类型改成<code>string</code>就可以看到想要的返回值。</p>
-<h3 id="Android-Studio"><a href="#Android-Studio" class="headerlink" title="Android Studio"></a>Android Studio</h3><p>AS中安装smalidea插件，这里遇到问题，一直安装不上，最后把压缩包直接解压放进plugins文件夹重启即可，据说是因为我安装AS时把路径从C盘改成D盘。安装完成后会有这两个smali处理插件：</p>
-<p><img src="https://z3.ax1x.com/2021/04/12/cD5zHP.png"></p>
-<p>在设置中把<code>Smali Support</code>支持<code>*.smali</code>文件改成<code>Smalieda</code>支持<code>*.smali</code>文件:</p>
-<p><img src="https://z3.ax1x.com/2021/04/12/cDoprR.png"></p>
-<p>之后就可以在smali代码中下断点了。</p>
-<p>还是先apktool解包在<code>AndroidManifest.xml</code>中加<code>android:debuggable=&quot;true&quot;</code>后重新打包签名(略)</p>
-<p>AS的虚拟机不用adb手动连接端口，但是调试需要端口映射。</p>
-<p>AS中选择<code>Profile or Debug APK</code>打开重新打包签名后的apk，新建一个remote调试配置：</p>
-<p><img src="https://z3.ax1x.com/2021/04/12/cD4tMR.png"></p>
-<p>记住端口号5005。</p>
-<p>在虚拟机上运行app，获得包名/主activity名：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">adb shell &quot;dumpsys activity top | grep ACTIVITY&quot;</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">  ACTIVITY com.android.launcher3/.Launcher 3f4d30e pid=2795</span></span><br><span class="line"><span class="meta">#</span><span class="bash">  ACTIVITY com.ph0en1x.android_crackme/.MainActivity df4d3f5 pid=5714</span></span><br></pre></td></tr></table></figure>
-
-<p>  以调试模式启动app:</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">adb shell am start -D -n com.ph0en1x.android_crackme/.MainActivity</span><br></pre></td></tr></table></figure>
-
-<p>查看以调试模式启动的进程pid：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">adb shell &quot;ps | grep crackme&quot;</span><br><span class="line"><span class="meta">#</span><span class="bash">u0_a104       5777  1619 1840024  80608 futex_wait_queue_me 0 S com.ph0en1x.android_crackme</span></span><br></pre></td></tr></table></figure>
-
-<p>端口映射:</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">adb forward tcp:5005 jdwp:5777</span><br></pre></td></tr></table></figure>
-
-<p>在AS中附加进程即可开始调试</p>
-<p><img src="https://z3.ax1x.com/2021/04/12/cDoZxH.png"></p>
-<p>需要注意的点：</p>
-<ol>
-<li>AS有Google Play的虚拟机无法root，所以需要创建一个没有Google Play的虚拟机</li>
-<li>我AS动态调试看不到寄存器的值</li>
-</ol>
-]]></content>
-      <categories>
-        <category>Reverse</category>
-      </categories>
-      <tags>
-        <tag>Android</tag>
       </tags>
   </entry>
 </search>
