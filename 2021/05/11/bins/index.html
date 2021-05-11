@@ -1,0 +1,274 @@
+
+<!DOCTYPE html>
+<html lang="" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>malloc - May</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="May,"> 
+    <meta name="description" content="May&#39;s Blog,学习时的参考文章
+glibc源码
+以前刚学堆的时候记的笔记，但是以前学的时候不知其所以然，也不会调试分析，近期重新看以前的笔记感觉明了了许多
+main_arena and non_main_aren,"> 
+    <meta name="author" content="May"> 
+    <link rel="alternative" href="atom.xml" title="May" type="application/atom+xml"> 
+    <link rel="icon" href="https://s2.ax1x.com/2019/07/10/Z6aCSs.png"> 
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+	<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({
+              google_ad_client: "ca-pub-8691406134231910",
+              enable_page_level_ads: true
+         });
+    </script>
+    <script async custom-element="amp-auto-ads"
+        src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
+    </script>
+<meta name="generator" content="Hexo 5.1.1"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">May</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="https://hnightanimal.top"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">malloc</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">malloc</h1>
+        <div class="stuff">
+            <span>五月 11, 2021</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/heap/" rel="tag">heap</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag">笔记</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <p><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/172886#h3-4">学习时的参考文章</a></p>
+<p><a target="_blank" rel="noopener" href="https://ftp.gnu.org/gnu/glibc/">glibc源码</a></p>
+<p>以前刚学堆的时候记的笔记，但是以前学的时候不知其所以然，也不会调试分析，近期重新看以前的笔记感觉明了了许多</p>
+<h1 id="main-arena-and-non-main-arena"><a href="#main-arena-and-non-main-arena" class="headerlink" title="main_arena and non_main_arena"></a>main_arena and non_main_arena</h1><p>又称为主分配区和非主分配区，main_arena 是一个结构体</p>
+<p>glibc2.27源码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">malloc_state</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="comment">/* Serialize access.  */</span></span><br><span class="line">  __libc_lock_define (, mutex);</span><br><span class="line">  <span class="comment">/* Flags (formerly in max_fast).  */</span></span><br><span class="line">  <span class="keyword">int</span> flags;</span><br><span class="line">  <span class="comment">/* Set if the fastbin chunks contain recently inserted free blocks.  */</span></span><br><span class="line">  <span class="comment">/* Note this is a bool but not all targets support atomics on booleans.  */</span></span><br><span class="line">  <span class="keyword">int</span> have_fastchunks;<span class="comment">//glibc2.27以下没有</span></span><br><span class="line">  <span class="comment">/* Fastbins */</span></span><br><span class="line">  mfastbinptr fastbinsY[NFASTBINS];</span><br><span class="line">  <span class="comment">/* Base of the topmost chunk -- not otherwise kept in a bin */</span></span><br><span class="line">  mchunkptr top;</span><br><span class="line">  <span class="comment">/* The remainder from the most recent split of a small request */</span></span><br><span class="line">  mchunkptr last_remainder;</span><br><span class="line">  <span class="comment">/* Normal bins packed as described above */</span></span><br><span class="line">  mchunkptr bins[NBINS * <span class="number">2</span> - <span class="number">2</span>];</span><br><span class="line">  <span class="comment">/* Bitmap of bins */</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> binmap[BINMAPSIZE];</span><br><span class="line">  <span class="comment">/* Linked list */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_state</span> *<span class="title">next</span>;</span></span><br><span class="line">  <span class="comment">/* Linked list for free arenas.  Access to this field is serialized</span></span><br><span class="line"><span class="comment">     by free_list_lock in arena.c.  */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_state</span> *<span class="title">next_free</span>;</span></span><br><span class="line">  <span class="comment">/* Number of threads attached to this arena.  0 if the arena is on</span></span><br><span class="line"><span class="comment">     the free list.  Access to this field is serialized by</span></span><br><span class="line"><span class="comment">     free_list_lock in arena.c.  */</span></span><br><span class="line">  INTERNAL_SIZE_T attached_threads;</span><br><span class="line">  <span class="comment">/* Memory allocated from the system in this arena.  */</span></span><br><span class="line">  INTERNAL_SIZE_T system_mem;</span><br><span class="line">  INTERNAL_SIZE_T max_system_mem;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>结构体对每一个成员给出了解释，第一个成员是 linux 下的锁，Doug Lea 实现的内存分配器只有一个主分配区，为了兼容多线程，每次分配内存之前都要对主分配区加锁，防止多线程对内存分配造成影响，这样就导致多线程锁的激烈竞争，降低了内存分配效率，而 ptmalloc 支持多线程，增加了 non_main_arena (非主分配区)，所谓 non_main_arena 其结构和主分配区相同，很多分配区通过环形链表相互串联，这样，多个线程就无需争夺同一个分配区了。但是分配区的数量毕竟是有限的，在极端情况下多个线程还是会竞争同一个分配区，所以锁依旧有用，先加锁的进程可以优先使用分配区，如果全部分配区都被加锁，那么后面的进程就会进入阻塞状态。对于 32 位系统来说，arena 最多为核心数量的 2 倍，64 位系统下 arena 最多为核心数量的 8 倍。<br>第二个成员是标志位，第三个成员用来标识最近是否有新的内存块被插入 fastbin 链表(glibc2.27中新加入)。<br>第四个成员是 fastbin 链表，第五个成员是 top chunk 的地址，在堆利用中可能会用到。第六个成员标识最后一次拆分 top chunk 得到的剩余部分，第七个成员是 smallbin、largebin 和 unsortedbin 的集合体，一共有 126 个表项。</p>
+<blockquote>
+<p>补：为什么有 126 个表项？这是由于 bin[0] 和 bin[127] 没有被使用，并且 bin[1] 是整个 bin 的头部。 注意 bin 定义的数量为 NBINS * 2 – 2 = 254，为什么是 254？ 这是由于缓冲区链表主要有 fd 和 bk 两个指针，smallbin 62 个、largebin 63 个，加在一起是 125 个，再加上一个头结点 bin[1] 共 126 个表项，换算成 index 一共有 252 个，所以 254 个指针空间是完全足够的！</p>
+</blockquote>
+<p>第八个成员可以视为一张地图，标识链表是否为空。第九个成员是 next 指针，指向下一个 arena。<br>第十个成员指向下一个为空的 arena。第十一个成员用来标识绑定在当前 arena 线程的总量。<br>最后两个成员用来跟踪当前被系统分配的内存总量。<br>这个 glibc 版本比较新的，有一些新加入的定义。</p>
+<p>常用的是在64bit的glibc2.27以下的版本中<code>unsortedbins</code>链表头在<code>main_arena+0x58</code>处，之后从<code>main_arena+0x68</code>开始是<code>smallbins</code>、<code>largebins</code>，从0x20开始按照bin大小排列不同大小的bin链表头；glibc2.27中多了一个<code>have_fastchunks</code>,因为对齐，后面的结构都往后多偏移了0x8字节。每个链表头之间差0x10字节，需要注意的是链表头的<code>fd</code>和<code>bk</code>指针在<code>链表头+0x10</code>和<code>链表头+0x18</code>的位置，也就是下一个链表头中。</p>
+<h1 id="chunk"><a href="#chunk" class="headerlink" title="chunk"></a>chunk</h1><p>chunk 称为堆块，是堆的重要组成部分，当用户申请内存块时，系统就会将空间以堆块的形式返回，堆块具有一定的结构，且按照大小分为 4 类，堆块的结构定义在 malloc.c 中，代码如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//glibc-2.26/malloc/malloc.c</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span> &#123;</span></span><br><span class="line">  INTERNAL_SIZE_T      mchunk_prev_size;  <span class="comment">/* Size of previous chunk (if free).  */</span></span><br><span class="line">  INTERNAL_SIZE_T      mchunk_size;       <span class="comment">/* Size in bytes, including overhead. */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span>* <span class="title">fd</span>;</span>         <span class="comment">/* double links -- used only if free. */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span>* <span class="title">bk</span>;</span></span><br><span class="line">  <span class="comment">/* Only used for large blocks: pointer to next larger size.  */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span>* <span class="title">fd_nextsize</span>;</span> <span class="comment">/* double links -- used only if free. */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span>* <span class="title">bk_nextsize</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>基本结构包含 6 个成员，首先是 mchunk_prev_size，如果当前堆块的前一个堆块是空闲的，那么此字段就是前一个堆块的 size,若前一个堆块在使用则此成员无效，且则前一个堆块可以使用这里的空间当作自己的数据区域。</p>
+<p>接着是当前堆块的 size，然后有两个指针，由于各种 bin 的存在，当堆块被释放后会进入对应的缓冲区中，并且以链表的形式存在，这里的 fd 和 bk 就是链表的前向后向指针，最后两个也是指针，但是它们只会出现在 largebin chunk 中，具体会在后面提到。</p>
+<p>一个堆块可能会是下面的状态</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">    chunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">            |             Size of previous chunk, if unallocated (P clear)  |</span><br><span class="line">            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">            |             Size of chunk, in bytes                     |A|M|P|</span><br><span class="line">      mem-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">            |             User data starts here...                          .</span><br><span class="line">            .                                                               .</span><br><span class="line">            .             (malloc_usable_size() bytes)                      .</span><br><span class="line">            .                                                               |</span><br><span class="line">nextchunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">            |             (size of chunk, but used for application data)    |</span><br><span class="line">            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">            |             Size of next chunk, in bytes                |A|0|1|</span><br><span class="line">            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br></pre></td></tr></table></figure>
+
+<p>需要注意 size 标志位的最低三位 A、M、P，由于对齐的原因，程序中size只会是0x8倍数，64位程序中是0x10的倍数，如果把 size 转换成二进制，它的最低三个 bit 始终都是 0，所以它们就有了了新的用途。<br>A(NON_MAIN_ARENA) 用来表示当前堆块是否属于 main_arena，M(IS_MAPPED)用来表示当前堆块是否由 mmap 分配，P(PREV_INUSE)是最为常用的标志位，用来表示当前堆块的前一个堆块是否空闲。</p>
+<h1 id="bins"><a href="#bins" class="headerlink" title="bins"></a>bins</h1><p>为了加快内存分配效率，ptmalloc 引入了缓冲区，把较小的堆块保存在缓冲区中，这样就可以减少和操作系统申请内存的次数，提高效率。缓冲区有一定的格式，按照堆块的大小分成了 4 类即 fastbin、smallbin、largebin、unsortedbin。</p>
+<p>第一类是 fastbin chunk，它的基本结构如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">+-----------------+-----------------+</span><br><span class="line">|                 |                 |</span><br><span class="line">|     prev_size   |      size       |</span><br><span class="line">|                 |                 |</span><br><span class="line">+-----------------------------------+</span><br><span class="line">|                 |                 |</span><br><span class="line">|        fd       |                 |</span><br><span class="line">|                 |                 |</span><br><span class="line">+-----------------+                 |</span><br><span class="line">|                                   |</span><br><span class="line">|            user data              |</span><br><span class="line">|                                   |</span><br><span class="line">+-----------------------------------+</span><br></pre></td></tr></table></figure>
+
+<p>fastbin chunk 的大小限制在 0x10 ~ 0x40(0x20 ~ 0x80 if OS is 64 bit)，这些 chunk 通过 fd 连接成一条单向链表，在主分配区中定义了 fastbins 指针，我们可以将它展开(64bit):</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">   index         size</span><br><span class="line">fastbinY[0]      0x20</span><br><span class="line">fastbinY[1]      0x30</span><br><span class="line">fastbinY[2]      0x40</span><br><span class="line">fastbinY[3]      0x50</span><br><span class="line">fastbinY[4]      0x60</span><br><span class="line">fastbinY[5]      0x70</span><br><span class="line">fastbinY[6]      0x80</span><br><span class="line">fastbinY[7]      N&#x2F;A</span><br><span class="line">fastbinY[8]      N&#x2F;A</span><br><span class="line">fastbinY[9]      N&#x2F;A</span><br></pre></td></tr></table></figure>
+
+<p>最后三个是保留项，暂时没有使用。</p>
+<p>fastbin 顾名思义，它分配堆块的速度很快，且仅仅保存很小的堆块，fastbin chunk 的两个特点是没有 bk 指针并且 PREV_INUSE 标志位一定是 1，也就是说 fastbin chunk 不会和其他堆块合并(在特殊情况下还是会发生合并)。另外，fastbin 采用 LIFO 策略，从头部插入，头部取出，这样可以进一步提高分配效率。</p>
+<p>附：fastbin 链表大致结构</p>
+<p><img src="https://z3.ax1x.com/2021/05/11/gdMwn0.png"></p>
+<p>第二类是 smallbin，这也是很常用的链表，smallbin chunk 近似于一个标准格式的 chunk，结构如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">+-----------------+-----------------+</span><br><span class="line">|                 |                 |</span><br><span class="line">|     prev_size   |      size       |</span><br><span class="line">|                 |                 |</span><br><span class="line">+-----------------------------------+</span><br><span class="line">|                 |                 |</span><br><span class="line">|        fd       |       bk        |</span><br><span class="line">|                 |                 |</span><br><span class="line">+-----------------------------------+</span><br><span class="line">|                                   |</span><br><span class="line">|                                   |</span><br><span class="line">|            user data              |</span><br><span class="line">|                                   |</span><br><span class="line">|                                   |</span><br><span class="line">+-----------------+-----------------+</span><br></pre></td></tr></table></figure>
+
+<p>相比于 fastbin chunk，这里多出了 bk 指针，需要注意的是 fd 和 bk 指针(以及 fd_nextsize、bk_nextsize 指针)都是可以作为用户数据被覆盖的，它们只会在堆块空闲时发挥作用,堆块使用时这些指针的位置都是数据区。</p>
+<p>smallbin 的范围在 0x10 ~ 0x1f8(0x20 ~ 0x3f0 if OS is 64 bit)，smallbin 和 fastbin 有一部分是重合的，其实 fastbin 中的堆块在一定情况下可以进入到 smallbin 中(当发生 consolidate 时)。一些 smallbin chunk 相互串联形成了一条双向链表</p>
+<p>附：smallbin 链表大致结构</p>
+<p><img src="https://z3.ax1x.com/2021/05/11/gdMc9J.png"></p>
+<p>smallbin 采用FIFO，链表从头部插入，尾部取出。</p>
+<p>第三类是 largebin，专门用来保存一些较大的堆块，范围从 0x200(0x400 if OS is 64bit) 开始。一个 largebin chunk 结构可能如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">+---------------+---------------+</span><br><span class="line">|               |               |</span><br><span class="line">|   prev_size   |    size       |</span><br><span class="line">|               |               |</span><br><span class="line">+-------------------------------+</span><br><span class="line">|               |               |</span><br><span class="line">|      fd       |      bk       |</span><br><span class="line">|               |               |</span><br><span class="line">+-------------------------------+</span><br><span class="line">|               |               |</span><br><span class="line">|   fd_nextsize |  bk_nextsize  |</span><br><span class="line">|               |               |</span><br><span class="line">+---------------+---------------+</span><br><span class="line">|                               |</span><br><span class="line">|                               |</span><br><span class="line">|            user_data          |</span><br><span class="line">|                               |</span><br><span class="line">+-------------------------------+</span><br></pre></td></tr></table></figure>
+
+<p>largebin共63个，32bit组织方法如下：</p>
+<p>32个bin 每0x40个字节一个阶层，比如第一个0x200-0x238字节，第二个0x240 – 0x278字节……</p>
+<p>16个bin 每0x200字节一个阶层</p>
+<p>8个bin每0x1000字节一个阶层</p>
+<p>4个bin每0x8000字节一个阶层</p>
+<p>2个bin每0x40000字节一个阶层</p>
+<p>64bit一样的组织方式只是从0x400开始</p>
+<p>最后一个bin包括所有剩下的大小。不同于其他链表，largebin 每一个表项保存的是一个范围，所以会用到 fd_nextsize &amp; bk_nextsize 指针。fd 和 bk 指针的功能和 smallbin 的相同，但是 fd_nextsize &amp; bk_nextsize 就有些复杂，fd_nextsize 指向第一个比当前堆块大的堆块，bk_nexisize 反之。</p>
+<p>第四类是 unsortedbin，这个链表比较特殊，它没有针对大小进行排序，这一点从名字也能看出来，它可以被视为 smallbin 和 largebin 的缓冲区，当用户释放一个堆块之后，会先进入 unsortedbin，再次分配堆块时，ptmalloc 会优先检查这个链表中是否存在合适的堆块，如果找到了，就直接返回给用户(这个过程可能会对 unsortedbin 中的堆块进行切割)，若没有找到合适的，系统会清空这个链表，将堆块插入对应的链表中。下面引用 malloc.c 中的注释</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Unsorted chunks</span><br><span class="line">    All remainders from chunk splits, as well as all returned chunks,</span><br><span class="line">    are first placed in the &quot;unsorted&quot; bin. They are then placed</span><br><span class="line">    in regular bins after malloc gives them ONE chance to be used before</span><br><span class="line">    binning. So, basically, the unsorted_chunks list acts as a queue,</span><br><span class="line">    with chunks being placed on it in free (and malloc_consolidate),</span><br><span class="line">    and taken off (to be either used or placed in bins) in malloc.</span><br><span class="line">    The NON_MAIN_ARENA flag is never set for unsorted chunks, so it</span><br><span class="line">    does not have to be taken into account in size comparisons.</span><br></pre></td></tr></table></figure>
+
+<h1 id="malloc-流程"><a href="#malloc-流程" class="headerlink" title="malloc 流程"></a>malloc 流程</h1><ol>
+<li>获取分配区的锁。</li>
+<li>将用户的请求大小转换为实际需要分配的 chunk 空间大小。</li>
+<li>判断所需分配 chunk 是否在 fastbin 区域，如果是的话， 则转下一步，否则跳到第 5 步。</li>
+<li>首先尝试在 fastbins 中取一个所需大小的 chunk 分配给用户。 如果可以找到， 则分配结束。 否则转到下一步。</li>
+<li>判断所需大小是否处在 small bins 中，如果 chunk 大小处在 smallbins 中，则转下一步，否则转到第 7 步。</li>
+<li>根据所需分配的 chunk 的大小， 找到具体所在的某个 smallbin，从该 bin 的尾部摘取一个恰好满足大小的 chunk。 若成功，则分配结束，否则转到下一步。</li>
+<li>到了这一步， 说明需要分配的是一块大的内存，或者 small bins 中找不到合适的chunk。于是，ptmalloc 首先会遍历 fastbins 中的 chunk，将相邻的 chunk 进行合并，并链接到 unsorted bin 中， 然后遍历 unsorted bin 中的 chunk，如果 unsorted bin 只有一个 chunk，并且这个 chunk 在上次分配时被使用过，并且所需分配的 chunk 大小属于 small bins，并且 chunk 的大小大于等于需要分配的大小，这种情况下就直接将该 chunk 进行切割，分配结束，否则将根据 chunk 的空间大小将其放入 smallbins 或是 large bins 中，遍历完成后，转入下一步。</li>
+<li>到了这一步，说明需要分配的是一块大的内存，或者 small bins 和 unsorted bin 中都找不到合适的 chunk，并且 fast bins 和 unsorted bin 中所有的 chunk 都清除干净了。 从 large bins 中按照“smallest-first， best-fit”原则， 找一个合适的 chunk， 从中划分一块所需大小的 chunk， 并将剩下的部分链接回到 bins 中。 若操作成功， 则分配结束， 否则转到下一步。</li>
+<li>如果搜索 fast bins 和 bins 都没有找到合适的 chunk， 那么就需要操作 top chunk 来进行分配了。 判断 top chunk 大小是否满足所需 chunk 的大小， 如果是， 则从 topchunk 中分出一块来。 否则转到下一步。</li>
+<li>到了这一步， 说明 top chunk 也不能满足分配要求， 所以， 于是就有了两个选择: 如果是主分配区， 调用 sbrk()， 增加 top chunk 大小； 如果是非主分配区，调用 mmap来分配一个新的 sub-heap，增加 top chunk 大小； 或者使用 mmap()来直接分配。 在这里， 需要依靠 chunk 的大小来决定到底使用哪种方法。 判断所需分配的 chunk大小是否大于等于 mmap 分配阈值， 如果是的话， 则转下一步， 调用 mmap 分配，否则跳到第 12 步， 增加 top chunk 的大小。</li>
+<li>使用 mmap 系统调用为程序的内存空间映射一块 chunk_size align 4kB 大小的空间。然后将内存指针返回给用户。</li>
+<li>判断是否为第一次调用 malloc， 若是主分配区， 则需要进行一次初始化工作， 分配一块(chunk_size + 128KB) align 4KB 大小的空间作为初始的 heap。 若已经初始化过了， 主分配区则调用 sbrk()增加 heap 空间， 分主分配区则在 top chunk 中切割出一个 chunk， 使之满足分配需求， 并将内存指针返回给用户。</li>
+</ol>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="true">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title='0' data-url='http://music.163.com/song/media/outer/url?id=420154189.mp3'></li>
+                        
+                    
+                        
+                            <li title='1' data-url='http://music.163.com/song/media/outer/url?id=527957820.mp3'></li>
+                        
+                    
+                        
+                            <li title='2' data-url='http://music.163.com/song/media/outer/url?id=1645064.mp3'></li>
+                        
+                    
+                        
+                            <li title='3' data-url='http://music.163.com/song/media/outer/url?id=39635710.mp3'></li>
+                        
+                    
+                        
+                            <li title='4' data-url='http://music.163.com/song/media/outer/url?id=464448450.mp3'></li>
+                        
+                    
+                        
+                            <li title='5' data-url='http://music.163.com/song/media/outer/url?id=33875750.mp3'></li>
+                        
+                    
+                        
+                            <li title='6' data-url='http://music.163.com/song/media/outer/url?id=864711417.mp3'></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+    <div id='gitalk-container' class="comment link"
+		data-enable='true'
+        data-ae='true'
+        data-ci='b4b7681976b71e1c4b85'
+        data-cs='1c0802349efe79789f01f3b548e96a4baf049907'
+        data-r='HNightMan.github.io'
+        data-o='HNightMan'
+        data-a='HNightMan'
+        data-d='false'
+    >查看评论</div>
+
+
+    </div>
+    
+        <div class='side'>
+			<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#main-arena-and-non-main-arena"><span class="toc-number">1.</span> <span class="toc-text">main_arena and non_main_arena</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#chunk"><span class="toc-number">2.</span> <span class="toc-text">chunk</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#bins"><span class="toc-number">3.</span> <span class="toc-text">bins</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#malloc-%E6%B5%81%E7%A8%8B"><span class="toc-number">4.</span> <span class="toc-text">malloc 流程</span></a></li></ol>	
+        </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>
