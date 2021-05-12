@@ -10,11 +10,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="google" content="notranslate" />
     <meta name="keywords" content="May,"> 
-    <meta name="description" content="May&#39;s Blog,自动化下载libc：
-glibc-all-in-one
-下载想要的libc版本后用patchelf修改文件硬编码中的libc和ld路径
-安装patchelf：
-1apt install patche,"> 
+    <meta name="description" content="May&#39;s Blog,修改LD_PRELOAD1export LD_PRELOAD=&amp;quot;./libc.so.6&amp;quot;
+
+1p =  process([&amp;quot;file_name&amp;quot;],env=&amp;,"> 
     <meta name="author" content="May"> 
     <link rel="alternative" href="atom.xml" title="May" type="application/atom+xml"> 
     <link rel="icon" href="https://s2.ax1x.com/2019/07/10/Z6aCSs.png"> 
@@ -68,7 +66,13 @@ glibc-all-in-one
 
         </div>
         <div class="content markdown">
-            <p>自动化下载libc：</p>
+            <h1 id="修改LD-PRELOAD"><a href="#修改LD-PRELOAD" class="headerlink" title="修改LD_PRELOAD"></a>修改LD_PRELOAD</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> LD_PRELOAD=<span class="string">&quot;./libc.so.6&quot;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p =  process([<span class="string">&quot;file_name&quot;</span>],env=&#123;<span class="string">&quot;LD_PRELOAD&quot;</span>:<span class="string">&quot;./libc.so.6&quot;</span>&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>通过修改<code>LD_PRELOAD</code>可以使程序加载指定的libc，一般用于加载题目提供的libc，但这种状况是没有debug symbol的。</p>
+<h1 id="glibc-all-in-one-patchelf"><a href="#glibc-all-in-one-patchelf" class="headerlink" title="glibc-all-in-one+patchelf"></a>glibc-all-in-one+patchelf</h1><p>调试程序时不需要加载目标libc只需要某特定版本可用这个组合，带有debug symbol。</p>
+<p>自动化下载libc：</p>
 <p><a target="_blank" rel="noopener" href="https://github.com/matrix1001/glibc-all-in-one">glibc-all-in-one</a></p>
 <p>下载想要的libc版本后用patchelf修改文件硬编码中的libc和ld路径</p>
 <p>安装patchelf：</p>
@@ -133,7 +137,7 @@ glibc-all-in-one
     </div>
     
         <div class='side'>
-				
+			<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9LD-PRELOAD"><span class="toc-number">1.</span> <span class="toc-text">修改LD_PRELOAD</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#glibc-all-in-one-patchelf"><span class="toc-number">2.</span> <span class="toc-text">glibc-all-in-one+patchelf</span></a></li></ol>	
         </div>
     
 </div>

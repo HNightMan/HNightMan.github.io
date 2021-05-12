@@ -1783,7 +1783,13 @@ PIE:      No PIE (0x400000)</code></pre>
   <entry>
     <title>关于切换libc版本</title>
     <url>/2021/05/12/chlibc/</url>
-    <content><![CDATA[<p>自动化下载libc：</p>
+    <content><![CDATA[<h1 id="修改LD-PRELOAD"><a href="#修改LD-PRELOAD" class="headerlink" title="修改LD_PRELOAD"></a>修改LD_PRELOAD</h1><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> LD_PRELOAD=<span class="string">&quot;./libc.so.6&quot;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">p =  process([<span class="string">&quot;file_name&quot;</span>],env=&#123;<span class="string">&quot;LD_PRELOAD&quot;</span>:<span class="string">&quot;./libc.so.6&quot;</span>&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>通过修改<code>LD_PRELOAD</code>可以使程序加载指定的libc，一般用于加载题目提供的libc，但这种状况是没有debug symbol的。</p>
+<h1 id="glibc-all-in-one-patchelf"><a href="#glibc-all-in-one-patchelf" class="headerlink" title="glibc-all-in-one+patchelf"></a>glibc-all-in-one+patchelf</h1><p>调试程序时不需要加载目标libc只需要某特定版本可用这个组合，带有debug symbol。</p>
+<p>自动化下载libc：</p>
 <p><a href="https://github.com/matrix1001/glibc-all-in-one">glibc-all-in-one</a></p>
 <p>下载想要的libc版本后用patchelf修改文件硬编码中的libc和ld路径</p>
 <p>安装patchelf：</p>
