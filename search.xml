@@ -1699,7 +1699,7 @@ PIE:      No PIE (0x400000)</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>malloc</title>
+    <title>malloc笔记</title>
     <url>/2021/05/11/malloc/</url>
     <content><![CDATA[<p><a href="https://www.anquanke.com/post/id/172886#h3-4">学习时的参考文章</a></p>
 <p><a href="https://ftp.gnu.org/gnu/glibc/">glibc源码</a></p>
@@ -1778,6 +1778,28 @@ PIE:      No PIE (0x400000)</code></pre>
         <tag>笔记</tag>
         <tag>Linux</tag>
         <tag>heap</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>关于切换libc版本</title>
+    <url>/2021/05/12/chlibc/</url>
+    <content><![CDATA[<p>自动化下载libc：</p>
+<p><a href="https://github.com/matrix1001/glibc-all-in-one">glibc-all-in-one</a></p>
+<p>下载想要的libc版本后用patchelf修改文件硬编码中的libc和ld路径</p>
+<p>安装patchelf：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apt install patchelf</span><br></pre></td></tr></table></figure>
+
+<p>使用：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">patchelf --<span class="built_in">set</span>-interpreter ~/glibc-all-in-one/libs/2.23-0ubuntu11.2_amd64/ld-2.23.so elffile</span><br><span class="line">patchelf --replace-needed libc.so.6 ~/glibc-all-in-one/libs/2.23-0ubuntu11.2_amd64/libc-2.23.so elffile</span><br></pre></td></tr></table></figure>
+
+<p>简化sh脚本：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">set</span> -e</span><br><span class="line"><span class="built_in">set</span> -u</span><br><span class="line">libc_path=<span class="variable">$1</span></span><br><span class="line">elf_path=<span class="variable">$2</span></span><br><span class="line"><span class="keyword">if</span> [ -f <span class="variable">$libc_path</span>/ld-[2].[0-9][0-9].so ]; <span class="keyword">then</span></span><br><span class="line">    patchelf --<span class="built_in">set</span>-interpreter <span class="variable">$libc_path</span>/ld-[2].[0-9][0-9].so <span class="variable">$elf_path</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="keyword">if</span> [ -f <span class="variable">$libc_path</span>/libc-[2].[0-9][0-9].so ]; <span class="keyword">then</span></span><br><span class="line">    patchelf --replace-needed libc.so.6 <span class="variable">$libc_path</span>/libc-[2].[0-9][0-9].so <span class="variable">$elf_path</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="built_in">set</span> +e</span><br><span class="line"><span class="built_in">set</span> +u</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Pwn</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
       </tags>
   </entry>
 </search>
