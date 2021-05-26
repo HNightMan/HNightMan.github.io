@@ -7,7 +7,7 @@
 <h4 id="南邮ctfWeb第二题"><a href="#南邮ctfWeb第二题" class="headerlink" title="南邮ctfWeb第二题"></a>南邮ctfWeb第二题</h4><p><img src="https://s2.ax1x.com/2019/09/11/na5SCF.png"></p>
 <p>md5是一种密码散列函数，是多对一的函数，理论上是不能解密的，但因为是多对一的关系，就存在不同数据的md5相同的情况，称为md5碰撞，不过这里我们不用去找与所给字符串md5相同的其他字符串，因为这串字符串md5加密后是以”0e”开头的字符串，而php是弱类型语言，其变量在比较的时候会自动转化数据类型，”0e”开头就会以科学计数法的方式被识别成数字0，所以这里我们只需要输入md5加密后是”0e”开头的字符串就行了，这是老套路，百度一查一大堆.</p>
 <h4 id="南邮ctfWeb第三题"><a href="#南邮ctfWeb第三题" class="headerlink" title="南邮ctfWeb第三题"></a>南邮ctfWeb第三题</h4><p><img src="https://s2.ax1x.com/2019/09/11/na5p34.png"></p>
-<p>写得很明白输入”zhimakaimen”，可是却返回口令错误，细心一点会发现最后一个字符没输进去，在网页源码中能看到”maxlength=10”限制了输入字符的长度，可以直接把”10”改成”11”再回去输就可以输11位了。网页其实就是对方服务器返回给请求者的html文件然后在本地浏览器上运行就产生了我们看到的界面，既然是在本地运行我们就可以对它进行修改嘛。另外在网页上”记住密码”之后，下次进入网页密码会自动填上，只是用一串小黑点隐藏起来，如果忘了密码也可以改网页源码来查看密码哦(坏笑)。</p>
+<p>写得很明白输入”zhimakaimen”，可是却返回口令错误，细心一点会发现最后一个字符没输进去，在网页源码中能看到”maxlength=10”限制了输入字符的长度，可以直接把”10”改成”11”再回去输就可以输11位了。网页其实就是对方服务器返回给请求者的html文件然后在本地浏览器上运行就产生了我们看到的界面，既然是在本地运行我们就可以对它进行修改嘛。另外在网页上”记住密码”之后，下次进入网页密码会自动填上，只是用一串小黑点隐藏起来，如果忘了密码也可以改网页源码来查看密码。</p>
 <p>这道题还可以用post直接把值传给text1，也可以得到flag。</p>
 <h4 id="Bugku-flag在index里"><a href="#Bugku-flag在index里" class="headerlink" title="Bugku flag在index里"></a>Bugku flag在index里</h4><p><img src="https://s2.ax1x.com/2019/09/11/na5Cv9.png"></p>
 <p>直接明了地说了flag在index里，这里需要用到php伪协议</p>
@@ -129,7 +129,7 @@
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">arr=[<span class="number">23</span>, <span class="number">22</span>, <span class="number">26</span>, <span class="number">26</span>, <span class="number">25</span>, <span class="number">25</span>, <span class="number">25</span>, <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">30</span>, <span class="number">30</span>, <span class="number">29</span>, <span class="number">30</span>, <span class="number">32</span>, <span class="number">32</span>]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(len(arr)):</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> range(<span class="number">127</span>):</span><br><span class="line">        <span class="keyword">if</span>(((arr[i]+j)%<span class="number">61</span>)*<span class="number">2</span>-i==j):</span><br><span class="line">            print(chr(j),end=<span class="string">&#x27;&#x27;</span>)</span><br><span class="line"><span class="comment">#LOHILMNMLKHILKHI</span></span><br></pre></td></tr></table></figure>
 
 <p>跑出来答案怎么交都不对，flag其实是<code>XMAN&#123;LOHILMNMLKHILKHI&#125;</code>…..</p>
-<h2 id="HelloSmali2"><a href="#HelloSmali2" class="headerlink" title="HelloSmali2"></a>HelloSmali2</h2><p>这道题更像是教学性质的题吧，给你一个smali代码和一个Java代码，相互翻译其实是一样的，要过题的话直接跑Java代码就行了，我放个smali文件链接感兴趣的同学可以试着读一下：<a href="https://ctf.bugku.com/files/92c55fa8c3ba59e36f327f8937941f22/f45775643c-46846-5990-b3793-32e8ecd15f0d.smali">smali代码</a>反正我是读不懂……………………</p>
+<h2 id="HelloSmali2"><a href="#HelloSmali2" class="headerlink" title="HelloSmali2"></a>HelloSmali2</h2><p>这道题更像是教学性质的题吧，给你一个smali代码和一个Java代码，相互翻译其实是一样的，要过题的话直接跑Java代码就行了，我放个smali文件链接感兴趣的同学可以试着读一下：smali代码反正我是读不懂……………………</p>
 ]]></content>
       <categories>
         <category>Reverse</category>
@@ -203,7 +203,7 @@
 <p><img src="https://s2.ax1x.com/2019/09/11/na4DhD.png"></p>
 <p>破解付费，因为提示付费时有弹窗，所以也可以在MessageBosW下断点然后按CTRL+1使用付费功能程序就停在断点处，从调用堆栈找到函数入口，往上找跳到这里来的关键跳转</p>
 <p><img src="https://s2.ax1x.com/2019/09/11/na4WHP.png"></p>
-<p>改了之后就可以使用付费功能了，但是打了补丁之后外挂程序就不能实现开挂功能，猜想可能是开始的时候有检测程序是否被修改，暂时没有解决，之后解决了会添上。</p>
+<p>改了之后就可以使用付费功能了，但是打了补丁之后外挂程序就不能实现开挂功能，猜想可能是开始的时候有检测程序是否被修改。</p>
 ]]></content>
       <categories>
         <category>Reverse</category>
@@ -840,7 +840,7 @@ PIE:      No PIE (0x400000)</code></pre>
 <p>MIPS寄存器</p>
 <p>　　RISC的一个显著特点就是大量使用寄存器。因为寄存器的存取可以在一个时钟周期内完成，同时简化了寻找方式，所以，MIPS32的指令中除了加载/存储指令以外，都使用寄存器或者立即数作为操作数，以便让编译器通过保持对寄存器内数据的频繁存取进一步优化代码的生成性能。</p>
 <p>　　MIPS32寄存器分为两类：通用寄存器（GPR)和特殊寄存器。</p>
-<h2 id="通用寄存器（GPR）"><a href="#通用寄存器（GPR）" class="headerlink" title="通用寄存器（GPR）"></a>通用寄存器（GPR）</h2><p>　　在MIPS体系结构中有32个通用寄存器，在汇编程序中可以用编号$0~$31表示，也可以用寄存器的名字表示，如$sp、$t1、$ta等，如图，堆栈是从内存的高地址方向向低地址方向增长的。</p>
+<h2 id="通用寄存器（GPR）"><a href="#通用寄存器（GPR）" class="headerlink" title="通用寄存器（GPR）"></a>通用寄存器（GPR）</h2><p>　　在MIPS体系结构中有32个通用寄存器，寄存器标志由 $ 开头，在汇编程序中可以用编号$0~$31表示，也可以用寄存器的名字表示，如$sp、$t1、$at等，如图，堆栈是从内存的高地址方向向低地址方向增长的。</p>
 <table>
 <thead>
 <tr>
@@ -851,7 +851,7 @@ PIE:      No PIE (0x400000)</code></pre>
 </thead>
 <tbody><tr>
 <td>0</td>
-<td>zero</td>
+<td>$zero</td>
 <td>第0号寄存器，其值始终为0</td>
 </tr>
 <tr>
@@ -861,12 +861,12 @@ PIE:      No PIE (0x400000)</code></pre>
 </tr>
 <tr>
 <td>2～3</td>
-<td>$v0~v1</td>
+<td>$v0~$v1</td>
 <td>values, 保存表达式或函数返回结果</td>
 </tr>
 <tr>
 <td>4-7</td>
-<td>$a0~a3</td>
+<td>$a0~$a3</td>
 <td>aruments, 作为函数的前4个参数</td>
 </tr>
 <tr>
@@ -881,8 +881,8 @@ PIE:      No PIE (0x400000)</code></pre>
 </tr>
 <tr>
 <td>24～25</td>
-<td>$t8~t9</td>
-<td>temporaries, 供汇编程序的临时寄存器，补充$t0~t7</td>
+<td>$t8~$t9</td>
+<td>temporaries, 供汇编程序的临时寄存器，补充$t0~$t7</td>
 </tr>
 <tr>
 <td>26~27</td>
@@ -911,18 +911,18 @@ PIE:      No PIE (0x400000)</code></pre>
 </tr>
 </tbody></table>
 <ul>
-<li>$0：即$zero，该寄存器总是返回0，为0这个有用常数提供了一个简洁的编码形式。在MIPS处理器的通用寄存器中，没有任何帮助运算判断的标志寄存器，要实现相应的功能时，都是通过测试两个寄存器是否相等完成的。MIPS编译器常常会使用slt、beq、bne等指令和由寄存器$0获得0值产生比较所有的比较条件，如相等、不等、小于等于、大于、大于等于。还可以用add指令创建move伪指令，如”move $t0, $t1; $t0=$t1”实际为“add $t0,$0,$t1; $t0= $t1 + 0”。使用MIPS伪指令可以简化任务。</li>
+<li>$0：即 ​$zero，该寄存器总是返回0，为0这个有用常数提供了一个简洁的编码形式。在MIPS处理器的通用寄存器中，没有任何帮助运算判断的标志寄存器，要实现相应的功能时，都是通过测试两个寄存器是否相等完成的。MIPS编译器常常会使用slt、beq、bne等指令和由寄存器 $0 获得0值产生比较所有的比较条件，如相等、不等、小于等于、大于、大于等于。还可以用add指令创建move伪指令，如”move $t0, $t1; $t0=$t1”实际为“add $t0,$0,$t1; $t0= $t1 + 0”。使用MIPS伪指令可以简化任务。</li>
 <li>$1 ($at) : 该寄存器为汇编保留，用做汇编器的暂时变量。</li>
-<li>$2<del>$3($v0</del>$v1): 用于存放子程序的返回值或非浮点结果。当这两个寄存器不够存放返回值时，编译器通过内存来完成。</li>
-<li>$4<del>$7($a0</del>$a3)：用于将前4个参数传递给子程序，不够的用堆栈处理。$a0<del>$a3、$v0</del>$v1和$ra 一起完成子程序函数调用过程，分别用以传递参数、返回结果和存放返回地址。当需要使用更多的寄存器时就需要堆栈了。MIPS编译器总是为参数在堆栈中留有空间，以防有参数需要存储。</li>
-<li>$8<del>$15($t0</del>$t7): 一个子函数可以不用保存并随意使用这些寄存器。在进行表达式计算时，这些寄存器是非常好的临时变量。在使用时需要注意，当调用一个子函数时，这些寄存器的值有可能被子函数破坏。</li>
-<li>$16<del>$23($s0</del>$s7): 子函数必须保证当函数返回时这些寄存器的内容将恢复到函数调用以前的值，或者子函数里不使用这些寄存器或把它们保存在堆栈上并保存在函数退出时恢复。这种约定使这些寄存器非常适合作为寄存器变量，或者用于存放一些函数调用期间必须保存的原值。</li>
-<li>$24<del>$25($t8</del>$t9): 同$t0<del>$t7,作为$t0</del>$t7寄存器补充。</li>
-<li>$26<del>$27($k0</del>$k1): 通常被中断或异常处理程序使用，以保存一些系统参数。</li>
+<li>$2~$3($v0~$v1): 用于存放子程序的返回值或非浮点结果。当这两个寄存器不够存放返回值时，编译器通过内存来完成。</li>
+<li>$4~​$7($a0~$a3)：用于将前4个参数传递给子程序，不够的用堆栈处理。$a0~$a3、$v0~$v1和$ra 一起完成子程序函数调用过程，分别用以传递参数、返回结果和存放返回地址。当需要使用更多的寄存器时就需要堆栈了。MIPS编译器总是为参数在堆栈中留有空间，以防有参数需要存储。</li>
+<li>$8~$15($t0~$t7): 一个子函数可以不用保存并随意使用这些寄存器。在进行表达式计算时，这些寄存器是非常好的临时变量。在使用时需要注意，当调用一个子函数时，这些寄存器的值有可能被子函数破坏。</li>
+<li>$16~$23($s0~$s7): 子函数必须保证当函数返回时这些寄存器的内容将恢复到函数调用以前的值，或者子函数里不使用这些寄存器或把它们保存在堆栈上并保存在函数退出时恢复。这种约定使这些寄存器非常适合作为寄存器变量，或者用于存放一些函数调用期间必须保存的原值。</li>
+<li>$24~$25($t8~$t9): 同$t0~$t7,作为$t0~$t7寄存器补充。</li>
+<li>$26~$27($k0~$k1): 通常被中断或异常处理程序使用，以保存一些系统参数。</li>
 <li>$28($gp): C语言中有两种存储类型，分别是自动型和静态型。自动变量是一个函数中的局部变量。静态变量在进入和退出一个函数时都是存在的。为了简化静态数据的访问，MIPS保留了一个寄存器作为全局指针gp在编译时，数据需要在以gp为基指针的64KB范围内。</li>
 <li>$29($sp): MIPS硬件并不直接支持堆栈，X86有单独的PUSH和POP指令，而MIPS没有单独的栈操作指令，所有对栈的操作都是统一的内存访问方式，单这并非不影响MIPS使用堆栈。在发生函数调用时，调用者把函数调用之后要用的寄存器压入堆栈，被调用者把返回地址寄存器$ra（并非任何时候都保存$ra)和保留寄存器压入堆栈。同时，调整堆栈指针，并在返回时从堆栈中恢复寄存器。</li>
 <li>$30($fp): 不同编译器可能对该寄存器使用方法不同。GNU MIPS C编译器使用了栈指针(Frame Pointer)。SGI的C编译器则没有使用栈指针，只是把这个寄存器当成保存寄存器使用（$s8)，这虽然节省了调用和返回开销，但增加了代码生成的复杂度性。</li>
-<li>$31 ($ra): 存放返回地址。MIPS没有call和retn指令，MIPS有一个jar（jump-and-link,跳转并链接）指令，在跳转到某个地址时可把下一条指令的地址放到$ra中，用于支持子程序。例如，调用程序把参数放到$a0<del>$a3中，“jar X”指令跳到X过程，被调用时需要保存的寄存器为$a0</del>$a3、$s0~$s7、$gp、$sp、$fp、$ra。</li>
+<li>$31 ($ra): 存放返回地址。MIPS没有call和retn指令，MIPS有一个jar（jump-and-link,跳转并链接）指令，在跳转到某个地址时可把下一条指令的地址放到$ra中，用于支持子程序。例如，调用程序把参数放到$a0~$a3中，“jar X”指令跳到X过程，被调用时需要保存的寄存器为$a0~$a3、$s0~$s7、$gp、$sp、$fp、$ra。</li>
 </ul>
 <h2 id="特殊寄存器"><a href="#特殊寄存器" class="headerlink" title="特殊寄存器"></a>特殊寄存器</h2><p>　　MIPS32架构中定义了3个特殊寄存器。分别为PC（程序计数器）、HI(乘除结果高位寄存器）和LO(乘除结果低位寄存器）。在进行乘法运算时，HI和LO保存乘法的运算结果，其中HI存储高32位，LO存储低32位；而在进行除法运算时，HI保存余数，LO存储商。</p>
 <h1 id="程序结构"><a href="#程序结构" class="headerlink" title="程序结构"></a>程序结构</h1><ul>
@@ -1829,8 +1829,7 @@ PIE:      No PIE (0x400000)</code></pre>
 <blockquote>
 <p>为什么还要检查 fastbin？ 两个原因，一是如果开启了 ATOMIC_FASTBINS ，由于 free fastbin chunk 的时候不需要加锁，所以 malloc 走到这一步的时候可能已经有其他线程向 fastbin 中注入了新的 chunk，另外一个原因是如果 nb 是一个 smallbin chunk，走到这一步说明之前所有的分配操作都失败了，但是在分配 smallbin chunk 的时候始终都没有调用过 malloc_consolidate，所以在 malloc 尾声的时候可以尝试合并 fastbin chunk 构造出符合要求的 chunk。</p>
 </blockquote>
-<p>总结</p>
-<ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
 <li>获取分配区的锁。</li>
 <li>将用户的请求大小转换为实际需要分配的 chunk 空间大小。</li>
 <li>判断所需分配 chunk 是否在 fastbin 区域，如果是的话， 则转下一步，否则跳到第 5 步。</li>
