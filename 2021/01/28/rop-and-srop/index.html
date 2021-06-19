@@ -125,12 +125,12 @@ NX:       NX enabled
 PIE:      No PIE (0x400000)</code></pre>
 </blockquote>
 <p>存在栈溢出,使用syscall系统调用：</p>
-<p><img src="https://s3.ax1x.com/2021/01/31/yEbsLn.png"></p>
+<p><img src="https://z3.ax1x.com/2021/05/26/2p3US0.png"></p>
 <p>gadgets:</p>
-<p><img src="https://s3.ax1x.com/2021/01/31/yEL9c4.png"></p>
+<p><img src="https://z3.ax1x.com/2021/05/26/2p36YR.png"></p>
 <p>其中0fh是<code>rt_sigreturn</code>的系统调用号，3Bh是<code>execve</code>的系统调用号。</p>
 <p>vuln函数汇编：</p>
-<p><img src="https://s3.ax1x.com/2021/01/31/yEOlzF.png"></p>
+<p><img src="https://z3.ax1x.com/2021/05/26/2p3Rl6.png"></p>
 <p>函数开始时把caller函数rbp压栈但在结束时没有取出，所以函数返回的地址其实是caller函数rbp的地址，是一个栈上的地址所以程序正常执行会报错，所以我们在进行栈溢出的时候只需要把返回地址写到rbp的位置。</p>
 <p>思路是利用ROP执行<code>execve(&quot;/bin/sh&quot;,0,0)</code>，程序中没有”/bin/sh”，只能自己在<code>vuln</code>函数中输入到栈中再泄露栈地址。</p>
 <p>在进行栈溢出覆盖返回地址后发现在<code>vuln</code>输出的0x30字节数据中还有一盒栈地址：</p>
