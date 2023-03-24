@@ -1,0 +1,223 @@
+
+<!DOCTYPE html>
+<html lang="" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SNERT招新题RE部分writeup - Theorist</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="Theorist,"> 
+    <meta name="description" content="Theorist&#39;s Blog,学校SNERT团队招新题中的RE部分，由我和另一个朋友出题，我审题，写个详细一点的writeup给刚接触的学弟学妹。
+EasyRe运行程序界面如下：
+
+就是一般的输入flag的界面，32位程序，用3,"> 
+    <meta name="author" content="Theorist"> 
+    <link rel="alternative" href="atom.xml" title="Theorist" type="application/atom+xml"> 
+    <link rel="icon" href="https://s2.ax1x.com/2019/07/10/Z6aCSs.png"> 
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+	<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({
+              google_ad_client: "ca-pub-8691406134231910",
+              enable_page_level_ads: true
+         });
+    </script>
+    <script async custom-element="amp-auto-ads"
+        src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
+    </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">Theorist</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="https://theorist.fun"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">SNERT招新题RE部分writeup</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">SNERT招新题RE部分writeup</h1>
+        <div class="stuff">
+            <span>十月 19, 2019</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <p>学校SNERT团队招新题中的RE部分，由我和另一个朋友出题，我审题，写个详细一点的writeup给刚接触的学弟学妹。</p>
+<h2 id="EasyRe"><a href="#EasyRe" class="headerlink" title="EasyRe"></a>EasyRe</h2><p>运行程序界面如下：</p>
+<p><img src="https://s2.ax1x.com/2019/10/20/KK5I6U.png"></p>
+<p>就是一般的输入flag的界面，32位程序，用32位IDA打开找到主函数(main),再按<code>F5</code>键转化成C语言伪代码：</p>
+<p><img src="https://s2.ax1x.com/2019/10/20/KK70EQ.png"></p>
+<p>就很明显能看到倒着的flag啊，复制过来倒转就行了，至于代码是用C++写的，内容是输入字符串之后将输入的字符串逆序后与图片中的逆序flag比较。另外因为这个题的flag就直接存在程序里面，只是逆序了一下，所以是可以直接用记事本之类的编辑文件打开找到这串比较明显的flag的，ollydbg也可以智能搜索搜出这串字符串。</p>
+<p><img src="https://s2.ax1x.com/2019/10/20/KKHNGR.png"></p>
+<h2 id="EasyRe2"><a href="#EasyRe2" class="headerlink" title="EasyRe2"></a>EasyRe2</h2><p>界面和上题一摸一样，直接用IDA打开是看不到函数的，因为程序有加壳，PEID查壳界面如下：</p>
+<p><img src="https://s2.ax1x.com/2019/10/20/KKHXQ0.png"></p>
+<p>可以看到<code>UPX</code>,是一种常见的压缩壳，这种壳很好脱，可以在网上找脱壳机，这里我们利用ESP定律手脱：<br>ollydbg打开，单步一次执行pushad，ESP发生变化变红：<br><img src="https://s2.ax1x.com/2019/10/27/Krg8Cq.png"><br>此时右键数据窗口跟随ESP并在该处下硬件访问断点：<br><img src="https://s2.ax1x.com/2019/10/27/KsKadA.png"><br>之后按F9运行程序，程序停在某处，然后就可以直接在这里dump程序：<br><img src="https://s2.ax1x.com/2019/10/27/KsKHL4.png"><br>之后就可以用IDA打开dump出来的程序看函数了，但是找不到主函数，不知道从该哪里开始分析，就先打开字符串窗口看看字符串，发现有”Wrong”,”You got it”等字符串，猜测应该就是核心代码所在的位置：<br><img src="https://s2.ax1x.com/2019/10/27/KsM8kn.png"><br>于是双击跟进，然后按X查看交叉引用，看看这个字符串在哪些地方被使用了，再跟进找到关键函数：<br><img src="https://s2.ax1x.com/2019/10/27/KsMwm4.png"><br><img src="https://s2.ax1x.com/2019/10/27/KsMst1.png"><br>然后上面那一串数字转化成字符就是flag了。</p>
+<h2 id="EasyRe3"><a href="#EasyRe3" class="headerlink" title="EasyRe3"></a>EasyRe3</h2><p>程序运行还是要求输入flag，32位程序，无壳。<br>IDA打开，主函数伪代码如下：<br><img src="https://s2.ax1x.com/2019/10/27/KsYBJH.png"><br>判断输入字符串的长度后将输入的字符串第11位异或<code>0x2C</code>，之后遍历字符串挨个判断<code>qizi(i^2C)</code>是否等于<code>v4[i]+i</code>，都等于则跳转到<code>win()</code>函数，有不相等的则跳转到<code>GG()</code>函数，跟进<code>qizi()</code>函数分析：<br><img src="https://s2.ax1x.com/2019/10/27/KsY0Fe.png"><br>可以看出该函数是将<code>0x404040</code>处的数据拷贝到<code>v2</code>再返回<code>v2[a1^0x2C]</code>，<code>a1</code>是传进来的参数也就是上层函数的<code>i^0x2C</code>，这里又异或了一次同样的值，两次异或同一个值之后变回原值<code>i</code>，所以返回的实际就是<code>v2[i]</code>。然后我们跟进看<code>0x404040</code>处的数据是什么：<br><img src="https://s2.ax1x.com/2019/10/27/KsNeET.png"><br>这一长串就是数据了，然后用这串数据倒推需要我们输入的正确flag，脚本如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">s = [<span class="number">0x66</span>, <span class="number">0x6d</span>, <span class="number">0x63</span>, <span class="number">0x6a</span>, <span class="number">0x7f</span>, <span class="number">0x59</span>, <span class="number">0x4e</span>, <span class="number">0x6c</span>, <span class="number">0x67</span>, <span class="number">0x80</span>, <span class="number">0x26</span>, <span class="number">0x7d</span>, <span class="number">0x3d</span>, <span class="number">0x71</span>,</span><br><span class="line">     <span class="number">0x6d</span>, <span class="number">0x40</span>, <span class="number">0x83</span>, <span class="number">0x70</span>, <span class="number">0x86</span>, <span class="number">0x43</span>, <span class="number">0x63</span>, <span class="number">0x74</span>, <span class="number">0x59</span>, <span class="number">0x89</span>, <span class="number">0x79</span>, <span class="number">0x73</span>, <span class="number">0x93</span>, <span class="number">0x98</span>]</span><br><span class="line">flag = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">28</span>):</span><br><span class="line">    <span class="keyword">if</span> i == <span class="number">10</span>:</span><br><span class="line">        flag += chr((s[i]-i) ^ <span class="number">0x2c</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        flag += chr(s[i]-i)</span><br><span class="line">print(flag)</span><br><span class="line"><span class="comment"># flag&#123;THe_w0r1d_1s_t0O_CraZy&#125;</span></span><br></pre></td></tr></table></figure>
+<h2 id="Xor"><a href="#Xor" class="headerlink" title="Xor"></a>Xor</h2><p>运行程序要求输入flag，32位程序，无壳。<br>IDA查看主函数如下：<br><img src="https://s2.ax1x.com/2019/10/27/Ks0ajJ.png"><br>先判断长度为22后后遍历输入的字符串前21位，让每一个字符串异或它本身后面一个字符串，之后与变量<code>flag</code>比较，跟进查看<code>flag</code>变量的值：<br><img src="https://s2.ax1x.com/2019/10/27/Ks0oUP.png"><br>因为不知道最后一位字符是什么(其实可以猜测是’}’)，我们只能暴力，的脚本如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">s = [<span class="number">0xa</span>, <span class="number">0xd</span>, <span class="number">0x6</span>, <span class="number">0x1c</span>, <span class="number">0x23</span>, <span class="number">0x68</span>, <span class="number">0x42</span>, <span class="number">0x2d</span>, <span class="number">0x36</span>, <span class="number">0x5c</span>, <span class="number">0x6a</span>,</span><br><span class="line">     <span class="number">0x9</span>, <span class="number">0x33</span>, <span class="number">0x17</span>, <span class="number">0xb</span>, <span class="number">0x26</span>, <span class="number">0x39</span>, <span class="number">0x13</span>, <span class="number">0x1b</span>, <span class="number">0x4f</span>, <span class="number">0x5c</span>]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">255</span>):</span><br><span class="line">    flag = <span class="string">&#x27;&#x27;</span></span><br><span class="line">    flag += chr(i)</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> range(<span class="number">21</span>):</span><br><span class="line">        flag += chr(ord(flag[<span class="number">-1</span>]) ^ s[<span class="number">20</span>-j])</span><br><span class="line">    print(flag[::<span class="number">-1</span>])<span class="comment">#反向输出</span></span><br></pre></td></tr></table></figure>
+<p>在跑出来的众多结果中可以找到flag：<br><img src="https://s2.ax1x.com/2019/10/27/KsBsqs.png"><br>这里跑出来的结果都能通过程序的验证，但是只有这一个可以通过靶场的题。</p>
+<h2 id="simple"><a href="#simple" class="headerlink" title="simple"></a>simple</h2><p>还是要求输入flag，还是32位程序，还是无壳。<br>主函数伪代码如下：<br><img src="https://s2.ax1x.com/2019/10/27/Ksy66U.png"><br>这个伪代码可能看起来有一点奇怪，因为这是用C++写的，但是分析方法是一样的，语言方面唯一需要注意的是<code>::v3</code>和<code>v3</code>是两个不同的东西，别问我为什么强调这一点…<br>还有就是<code>sub1()</code>和<code>sub2()</code>两个函数，是利用一个数组手动模拟的一个栈(先进后出)，<code>sub1()</code>是进栈，<code>sub2()</code>是出栈，意思说每次<code>sub2()</code>都会取出最近一个<code>sub1()</code>存进栈里的数据。函数伪代码如下：<br><img src="https://s2.ax1x.com/2019/10/27/KsyAW6.png"><br><img src="https://s2.ax1x.com/2019/10/27/KsyMTA.png"><br>其中<code>s</code>和<code>v7</code>是全局变量，跟进可查看<code>v7</code>的值是<code>-1</code>。<br>加密算法是用程序里程序里的一串字符串<code>s2</code>与输入的字符串异或，结果与<code>s1</code>比较。脚本如下:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">arr = [<span class="number">18</span>, <span class="number">5</span>, <span class="number">10</span>, <span class="number">23</span>, <span class="number">32</span>, <span class="number">24</span>, <span class="number">29</span>, <span class="number">17</span>, <span class="number">29</span>, <span class="number">55</span>, <span class="number">8</span>, <span class="number">91</span>,</span><br><span class="line">       <span class="number">12</span>, <span class="number">31</span>, <span class="number">16</span>, <span class="number">59</span>, <span class="number">18</span>, <span class="number">113</span>, <span class="number">0</span>, <span class="number">23</span>, <span class="number">28</span>, <span class="number">1</span>, <span class="number">104</span>, <span class="number">3</span>]</span><br><span class="line">key = <span class="string">&#x27;this_is_fake_flag?&#x27;</span></span><br><span class="line">flag = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">24</span>):</span><br><span class="line">    flag += chr(i ^ ord(key[i % <span class="number">18</span>]) ^ arr[i])</span><br><span class="line">print(flag)</span><br><span class="line"><span class="comment">#flag&#123;thIs_i5_trUe_flag!&#125;</span></span><br></pre></td></tr></table></figure>
+<h2 id="Maze"><a href="#Maze" class="headerlink" title="Maze"></a>Maze</h2><p>题名为迷宫，32位程序，无壳，运行程序没有任何提示，试着随便输入一个东西，程序关闭，用ollydbg动态调试发现最后程序输出了一个”Wrong&gt;_&lt;”之后才关闭的，应该是懒惰的出题人没有设置暂停所以程序瞬间就关闭了我们看不到输出的提示，还有开头也没有输入提示”Please input the flag”之类的。<br>IDA查看主函数伪代码：<br><img src="https://s2.ax1x.com/2019/10/27/KywCAx.png"><br><img src="https://s2.ax1x.com/2019/10/27/KywRV1.png"><br><img src="https://s2.ax1x.com/2019/10/27/Ky0uM4.png"><br>可以看出程序先用两堆数据异或生成迷宫，<code>v17</code>表示横坐标，<code>v16</code>表示纵坐标，初始值都为0，即处于迷宫左上角，走到迷宫右下角即达到终点。之后遍历字符串，”u”表示向上走(up)，”d”表示向下走，”l”表示向左走，”r”表示向右走，每走一步会判断是否越界或者撞墙。表示迷宫的二维数组中值为1表示墙，值为0表示可以走。但存储两堆用来异或生成迷宫的字符串跟进无法看值，因为用的是string类而且在主函数外声明赋值的全局变量但其实搜索字符串能看到两串奇怪的字符串：<br><img src="https://s2.ax1x.com/2019/10/27/KyrJJ0.png"><br>用od继续调试，利用在ida中找到的生成迷宫的代码的地址，在ollydbg中找到该位置下断点,然后运行到该处跟随地址找到存储迷宫的位置：<br><img src="https://s2.ax1x.com/2019/10/27/Kysq41.png"><br>然后执行程序，迷宫生成：<br><img src="https://s2.ax1x.com/2019/10/27/Kyyw5R.png"><br>把迷宫按20*10画出来结果如图：<br><img src="https://s2.ax1x.com/2019/10/27/KygaVg.png"><br>之后就找一条路从左上到右下。</p>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="true">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title='0' data-url='http://music.163.com/song/media/outer/url?id=420154189.mp3'></li>
+                        
+                    
+                        
+                            <li title='1' data-url='http://music.163.com/song/media/outer/url?id=527957820.mp3'></li>
+                        
+                    
+                        
+                            <li title='2' data-url='http://music.163.com/song/media/outer/url?id=1645064.mp3'></li>
+                        
+                    
+                        
+                            <li title='3' data-url='http://music.163.com/song/media/outer/url?id=39635710.mp3'></li>
+                        
+                    
+                        
+                            <li title='4' data-url='http://music.163.com/song/media/outer/url?id=464448450.mp3'></li>
+                        
+                    
+                        
+                            <li title='5' data-url='http://music.163.com/song/media/outer/url?id=33875750.mp3'></li>
+                        
+                    
+                        
+                            <li title='6' data-url='http://music.163.com/song/media/outer/url?id=864711417.mp3'></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+    <div id='gitalk-container' class="comment link"
+		data-enable='true'
+        data-ae='true'
+        data-ci='b4b7681976b71e1c4b85'
+        data-cs='1c0802349efe79789f01f3b548e96a4baf049907'
+        data-r='HNightMan.github.io'
+        data-o='HNightMan'
+        data-a='HNightMan'
+        data-d='false'
+    >查看评论</div>
+
+
+    </div>
+    
+        <div class='side'>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#EasyRe"><span class="toc-number">1.</span> <span class="toc-text">EasyRe</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EasyRe2"><span class="toc-number">2.</span> <span class="toc-text">EasyRe2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EasyRe3"><span class="toc-number">3.</span> <span class="toc-text">EasyRe3</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Xor"><span class="toc-number">4.</span> <span class="toc-text">Xor</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#simple"><span class="toc-number">5.</span> <span class="toc-text">simple</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Maze"><span class="toc-number">6.</span> <span class="toc-text">Maze</span></a></li></ol>	
+        </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>

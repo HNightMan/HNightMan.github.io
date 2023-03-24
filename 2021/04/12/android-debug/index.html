@@ -1,0 +1,252 @@
+
+<!DOCTYPE html>
+<html lang="" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Android动态调试 - Theorist</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="Theorist,"> 
+    <meta name="description" content="Theorist&#39;s Blog,用jeb和Android Studio进行apk无源码动态调试，以攻防世界的Ph0en1x-100为例
+jeb查看Java代码找到关键判断：
+
+用getSecret()分别处理getFlag()和e,"> 
+    <meta name="author" content="Theorist"> 
+    <link rel="alternative" href="atom.xml" title="Theorist" type="application/atom+xml"> 
+    <link rel="icon" href="https://s2.ax1x.com/2019/07/10/Z6aCSs.png"> 
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+	<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({
+              google_ad_client: "ca-pub-8691406134231910",
+              enable_page_level_ads: true
+         });
+    </script>
+    <script async custom-element="amp-auto-ads"
+        src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
+    </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">Theorist</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="https://theorist.fun"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">Android动态调试</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">Android动态调试</h1>
+        <div class="stuff">
+            <span>四月 12, 2021</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <p>用jeb和Android Studio进行apk无源码动态调试，以攻防世界的Ph0en1x-100为例</p>
+<p>jeb查看Java代码找到关键判断：</p>
+<p><img src="https://z3.ax1x.com/2021/04/12/cDy5in.png"></p>
+<p>用getSecret()分别处理getFlag()和encrypt(sInput)后将两个值比较，sInput是输入，只需要让getFlag()和encrypt(sInput)的值相同即可，ida查看so文件发现encrypt()函数只是将输入字符串的每一位ascii码-1，而getFlag()函数没有输入，故返回值不变，可以通过动态调试得到返回值。</p>
+<h3 id="jeb-夜神模拟器"><a href="#jeb-夜神模拟器" class="headerlink" title="jeb+夜神模拟器"></a>jeb+夜神模拟器</h3><p>apktool解包在<code>AndroidManifest.xml</code>中加<code>android:debuggable=&quot;true&quot;</code>后重新打包签名(略)</p>
+<p>在模拟器中安装重新打包签名好的apk，adb连接模拟器</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb connect 127.0.0.1:62001</span><br></pre></td></tr></table></figure>
+
+<p>查看连接</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb devices</span><br></pre></td></tr></table></figure>
+
+<p>jeb找到getFlag()函数在smali中的位置下断点：</p>
+<p><img src="https://z3.ax1x.com/2021/04/12/cDgTzt.png"></p>
+<p>模拟器中打开app，jeb附加进程调试：</p>
+<p><img src="https://z3.ax1x.com/2021/04/12/cDgxij.png"></p>
+<p>模拟器中输入数据点击确认，程序断下，查看数据：</p>
+<p><img src="https://z3.ax1x.com/2021/04/12/cD2uS1.png"></p>
+<p><code>move-result-object  v1</code>是将刚刚执行了的getFlag()的返回值赋给寄存器<code>v1</code>，在这里把<code>v1</code>的类型改成<code>string</code>就可以看到想要的返回值。</p>
+<h3 id="Android-Studio"><a href="#Android-Studio" class="headerlink" title="Android Studio"></a>Android Studio</h3><p>AS中安装smalidea插件，这里遇到问题，一直安装不上，最后把压缩包直接解压放进plugins文件夹重启即可，据说是因为我安装AS时把路径从C盘改成D盘。安装完成后会有这两个smali处理插件：</p>
+<p><img src="https://z3.ax1x.com/2021/04/12/cD5zHP.png"></p>
+<p>在设置中把<code>Smali Support</code>支持<code>*.smali</code>文件改成<code>Smalieda</code>支持<code>*.smali</code>文件:</p>
+<p><img src="https://z3.ax1x.com/2021/04/12/cDoprR.png"></p>
+<p>之后就可以在smali代码中下断点了。</p>
+<p>还是先apktool解包在<code>AndroidManifest.xml</code>中加<code>android:debuggable=&quot;true&quot;</code>后重新打包签名(略)</p>
+<p>AS的虚拟机不用adb手动连接端口，但是调试需要端口映射。</p>
+<p>AS中选择<code>Profile or Debug APK</code>打开重新打包签名后的apk，新建一个remote调试配置：</p>
+<p><img src="https://z3.ax1x.com/2021/04/12/cD4tMR.png"></p>
+<p>记住端口号5005。</p>
+<p>在虚拟机上运行app，获得包名/主activity名：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">adb shell &quot;dumpsys activity top | grep ACTIVITY&quot;</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">  ACTIVITY com.android.launcher3/.Launcher 3f4d30e pid=2795</span></span><br><span class="line"><span class="meta">#</span><span class="bash">  ACTIVITY com.ph0en1x.android_crackme/.MainActivity df4d3f5 pid=5714</span></span><br></pre></td></tr></table></figure>
+
+<p>  以调试模式启动app:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb shell am start -D -n com.ph0en1x.android_crackme/.MainActivity</span><br></pre></td></tr></table></figure>
+
+<p>查看以调试模式启动的进程pid：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">adb shell &quot;ps | grep crackme&quot;</span><br><span class="line"><span class="meta">#</span><span class="bash">u0_a104       5777  1619 1840024  80608 futex_wait_queue_me 0 S com.ph0en1x.android_crackme</span></span><br></pre></td></tr></table></figure>
+
+<p>端口映射:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb forward tcp:5005 jdwp:5777</span><br></pre></td></tr></table></figure>
+
+<p>在AS中附加进程即可开始调试</p>
+<p><img src="https://z3.ax1x.com/2021/04/12/cDoZxH.png"></p>
+<p>需要注意的点：</p>
+<ol>
+<li>AS有Google Play的虚拟机无法root，所以需要创建一个没有Google Play的虚拟机</li>
+<li>我AS动态调试看不到寄存器的值</li>
+</ol>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="true">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title='0' data-url='http://music.163.com/song/media/outer/url?id=420154189.mp3'></li>
+                        
+                    
+                        
+                            <li title='1' data-url='http://music.163.com/song/media/outer/url?id=527957820.mp3'></li>
+                        
+                    
+                        
+                            <li title='2' data-url='http://music.163.com/song/media/outer/url?id=1645064.mp3'></li>
+                        
+                    
+                        
+                            <li title='3' data-url='http://music.163.com/song/media/outer/url?id=39635710.mp3'></li>
+                        
+                    
+                        
+                            <li title='4' data-url='http://music.163.com/song/media/outer/url?id=464448450.mp3'></li>
+                        
+                    
+                        
+                            <li title='5' data-url='http://music.163.com/song/media/outer/url?id=33875750.mp3'></li>
+                        
+                    
+                        
+                            <li title='6' data-url='http://music.163.com/song/media/outer/url?id=864711417.mp3'></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+    <div id='gitalk-container' class="comment link"
+		data-enable='true'
+        data-ae='true'
+        data-ci='b4b7681976b71e1c4b85'
+        data-cs='1c0802349efe79789f01f3b548e96a4baf049907'
+        data-r='HNightMan.github.io'
+        data-o='HNightMan'
+        data-a='HNightMan'
+        data-d='false'
+    >查看评论</div>
+
+
+    </div>
+    
+        <div class='side'>
+			<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#jeb-%E5%A4%9C%E7%A5%9E%E6%A8%A1%E6%8B%9F%E5%99%A8"><span class="toc-number">1.</span> <span class="toc-text">jeb+夜神模拟器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Android-Studio"><span class="toc-number">2.</span> <span class="toc-text">Android Studio</span></a></li></ol>	
+        </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>

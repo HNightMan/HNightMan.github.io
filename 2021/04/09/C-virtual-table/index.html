@@ -1,0 +1,261 @@
+
+<!DOCTYPE html>
+<html lang="" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>C++虚函数表 - Theorist</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="Theorist,"> 
+    <meta name="description" content="Theorist&#39;s Blog,C++虚函数参考C++虚函数表解析
+C++中的虚函数的作用主要是实现了多态的机制。关于多态，简而言之就是用父类型别的指针指向其子类的实例，然后通过父类的指针调用实际子类的成员函数。这种技术可以让父类,"> 
+    <meta name="author" content="Theorist"> 
+    <link rel="alternative" href="atom.xml" title="Theorist" type="application/atom+xml"> 
+    <link rel="icon" href="https://s2.ax1x.com/2019/07/10/Z6aCSs.png"> 
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+	<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({
+              google_ad_client: "ca-pub-8691406134231910",
+              enable_page_level_ads: true
+         });
+    </script>
+    <script async custom-element="amp-auto-ads"
+        src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
+    </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">Theorist</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="https://theorist.fun"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">C++虚函数表</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">C++虚函数表</h1>
+        <div class="stuff">
+            <span>四月 09, 2021</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/C/" rel="tag">C++</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <h1 id="C-虚函数"><a href="#C-虚函数" class="headerlink" title="C++虚函数"></a>C++虚函数</h1><p>参考<a target="_blank" rel="noopener" href="https://blog.csdn.net/haoel/article/details/1948051">C++虚函数表解析</a></p>
+<p>C++中的虚函数的作用主要是实现了多态的机制。关于多态，简而言之就是用父类型别的指针指向其子类的实例，然后通过父类的指针调用实际子类的成员函数。这种技术可以让父类的指针有“多种形态”，这是一种泛型技术。所谓泛型技术，说白了就是试图使用不变的代码来实现可变的算法。</p>
+<h2 id="虚函数表"><a href="#虚函数表" class="headerlink" title="虚函数表"></a>虚函数表</h2><p>C++的虚函数是通过一张虚函数表实现的，在这个表中存放的是类的虚函数的地址，这张表解决了继承、覆盖的问题，保证其容真实反应实际的函数。在有虚函数的类的实例中该类的虚函数表地址被分配在了这个实例的内存中。C++的编译器将虚函数表的地址存放在实例内存的开头，将虚函数表本身存放于只读数据段。</p>
+<p>实例：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span></span><br><span class="line">	<span class="keyword">public</span>:</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">f</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Base::f&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">g</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Base::g&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">h</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Base::h&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">typedef</span> <span class="title">void</span><span class="params">(*Fun)</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line">	Base b; </span><br><span class="line">	<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;虚函数表地址：&quot;</span> &lt;&lt; (<span class="keyword">int</span>*)*(<span class="keyword">int</span>*)(&amp;b) &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">	<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;虚函数表第一个函数地址：&quot;</span> &lt;&lt; (<span class="keyword">int</span>*)*(<span class="keyword">int</span>*)*(<span class="keyword">int</span>*)(&amp;b) &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">	Fun pFun = (Fun)*((<span class="keyword">int</span>*)*(<span class="keyword">int</span>*)(&amp;b));</span><br><span class="line">	pFun();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//运行结果</span></span><br><span class="line"><span class="comment">//虚函数表地址：0x48e338</span></span><br><span class="line"><span class="comment">//虚函数表第一个函数地址：0x421c20</span></span><br><span class="line"><span class="comment">//Base::f</span></span><br></pre></td></tr></table></figure>
+
+<p>通过实例看到我们可以将实例地址<code>&amp;b</code>转化成int指针<code>int *</code>，之后因为虚函数表在实例首地址，对其取值就能得到虚函数表的地址，再对其取值就能得到虚函数表第一个函数的地址，同理可得虚函数中其他函数的地址：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(Fun)*((<span class="keyword">int</span>*)*(<span class="keyword">int</span>*)(&amp;b)+<span class="number">0</span>);  <span class="comment">// Base::f()</span></span><br><span class="line">(Fun)*((<span class="keyword">int</span>*)*(<span class="keyword">int</span>*)(&amp;b)+<span class="number">1</span>);  <span class="comment">// Base::g()</span></span><br><span class="line">(Fun)*((<span class="keyword">int</span>*)*(<span class="keyword">int</span>*)(&amp;b)+<span class="number">2</span>);  <span class="comment">// Base::h()</span></span><br></pre></td></tr></table></figure>
+
+<p>内存图示：</p>
+<p><img src="https://z3.ax1x.com/2021/04/09/cUSCEq.jpg"></p>
+<p>上面的图是嫖的网友的，按网友所说他在虚函数表的最后多加了一个结点，这是虚函数表的结束结点，就像字符串的结束符‘\0’一样，其标志了虚函数表的结束。这个结束标志的值在不同的编译器下是不同的。在<em>WinXP+VS2003</em>下，这个值是<em>NULL</em>。而在<em>Ubuntu 7.10 + Linux 2.6.22 + GCC 4.1.3</em>下，这个值是如果<em>1</em>，表示还有下一个虚函数表，如果值是<em>0</em>，表示是最后一个虚函数表。</p>
+<p>而我在<em>gcc version 10.2.1 20210110 (Debian 10.2.1-6)<em>环境下调试32位程序的结果是实例首地址的存放的是</em>vtable+8</em>的地址，而虚函数也是从<em>vtable+8</em>的位置开始存，只是在<em>vtable</em>开始的位置有一个0，如果因为多重继承有多个vtable则第二个vtable开始位置为 -4 ，第三个为 -8 ，<em>vtable+4</em>的位置是该类的 typeinfo，猜测可能是把虚函数表结束标识换成开始标识了吧，因为虚函数表在内存中是相邻存放的，所以开头标识或结束标识其实没差~~吧。</p>
+<h2 id="一般继承-无虚函数覆盖"><a href="#一般继承-无虚函数覆盖" class="headerlink" title="一般继承(无虚函数覆盖)"></a>一般继承(无虚函数覆盖)</h2><p>若继承关系中子类没有重写任何父类的虚函数：</p>
+<p><img src="https://z3.ax1x.com/2021/04/09/cUCxJ0.jpg"></p>
+<p>子类的虚函数表是这样的：</p>
+<p><img src="https://z3.ax1x.com/2021/04/09/cUii1f.jpg"></p>
+<p>可以看到一下几点</p>
+<ol>
+<li>虚函数按照声明顺序存放在表中</li>
+<li>父类的虚函数在前，子类自己的在后</li>
+</ol>
+<h2 id="一般继承-有虚函数覆盖"><a href="#一般继承-有虚函数覆盖" class="headerlink" title="一般继承(有虚函数覆盖)"></a>一般继承(有虚函数覆盖)</h2><p>继承关系中子类有重写父类的虚函数：</p>
+<p><img src="https://z3.ax1x.com/2021/04/09/cUFrR0.jpg"></p>
+<p>子类虚函数表：</p>
+<p><img src="https://z3.ax1x.com/2021/04/09/cUFcsU.jpg"></p>
+<ol>
+<li>子类的虚函数表会包含父类的虚函数表</li>
+<li>子类重写的f()函数替换了父类虚函数表中的f()</li>
+<li>子类自己的虚函数跟在父类虚函数的后面</li>
+</ol>
+<h2 id="多重继承-无虚函数覆盖"><a href="#多重继承-无虚函数覆盖" class="headerlink" title="多重继承(无虚函数覆盖)"></a>多重继承(无虚函数覆盖)</h2><p><img src="https://z3.ax1x.com/2021/04/09/cUAIKK.jpg"></p>
+<p><img src="https://z3.ax1x.com/2021/04/09/cUAoDO.jpg"></p>
+<ol>
+<li>将每个父类的虚函数表拷贝形成自己的虚函数表</li>
+<li>按照继承顺序将其放在实例内存的前n个地址(n=继承的父类数，地址宽度取决于程序位数)</li>
+<li>子类的虚函数跟在拷贝自第一个父类的虚函数表后</li>
+<li>需要注意的是继承自Base2和Base3的虚函数表虽然内容和父类的完全一样，但依然拷贝了一份，并没有直接使用父类的虚函数表。</li>
+</ol>
+<h2 id="多重继承-有虚函数覆盖"><a href="#多重继承-有虚函数覆盖" class="headerlink" title="多重继承(有虚函数覆盖)"></a>多重继承(有虚函数覆盖)</h2><p><img src="https://z3.ax1x.com/2021/04/09/cUVCy6.jpg"></p>
+<p><img src="https://z3.ax1x.com/2021/04/09/cUVPOK.jpg"></p>
+<ol>
+<li><p>将每个父类的虚函数表拷贝，替换其中重写的虚函数地址，形成自己的虚函数表</p>
+</li>
+<li><p>按照继承顺序将其放在实例内存的前n个地址</p>
+</li>
+<li><p>子类的虚函数跟在拷贝自第一个父类的虚函数表后</p>
+</li>
+<li><p>需要注意的是三个*Derive::f()*存放的其实是三个不同的地址，但只有继承自第一个父类的表中的重写函数才是函数真正的地址，其他的是一个跳转，跳转到第一个表中真正的地址，如图：</p>
+</li>
+</ol>
+<p><img src="https://z3.ax1x.com/2021/04/09/cUZFcq.png"></p>
+<h2 id="安全性"><a href="#安全性" class="headerlink" title="安全性"></a>安全性</h2><h3 id="可以通过父类指针访问子类自己的虚函数"><a href="#可以通过父类指针访问子类自己的虚函数" class="headerlink" title="可以通过父类指针访问子类自己的虚函数"></a>可以通过父类指针访问子类自己的虚函数</h3><p>父类指针指向子类，正常来说是我无法访问子类自己的虚函数的，但可以通过虚函数表的地址找到子类的虚函数执行</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span></span><br><span class="line">	<span class="keyword">public</span>:</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">f</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Base::f&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">g</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Base::g&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">h</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Base::h&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derive</span> :</span> <span class="keyword">public</span> Base&#123;</span><br><span class="line">	<span class="keyword">public</span>:</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">f</span><span class="params">()</span></span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Derive::f&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">g1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Derive::g1&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">typedef</span> <span class="title">void</span><span class="params">(*Fun)</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line">	Base *pBase=<span class="keyword">new</span>(Derive);</span><br><span class="line">	Fun pFun = (Fun)*((<span class="keyword">int</span>*)*(<span class="keyword">int</span>*)(pBase)+<span class="number">3</span>);</span><br><span class="line">	pFun();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//Derive::g1</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="访问non-public的虚函数"><a href="#访问non-public的虚函数" class="headerlink" title="访问non-public的虚函数"></a>访问<em>non-public</em>的虚函数</h3><p>如果父类的虚函数是<em>private</em>或是<em>protected</em>的，但这些非<em>public</em>的虚函数同样会存在于虚函数表中，所以，我们同样可以使用访问虚函数表的方式来访问这些<em>no-public</em>函数。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span> &#123;</span></span><br><span class="line">	<span class="keyword">private</span>:</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">f</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Base::f&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">g</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Base::g&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">h</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Base::h&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derive</span> :</span> <span class="keyword">public</span> Base&#123;</span><br><span class="line">	<span class="keyword">public</span>:</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">f</span><span class="params">()</span></span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Derive::f&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">g1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Derive::g1&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">typedef</span> <span class="title">void</span><span class="params">(*Fun)</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line">	Base *pBase=<span class="keyword">new</span>(Derive);</span><br><span class="line">	Fun pFun = (Fun)*((<span class="keyword">int</span>*)*(<span class="keyword">int</span>*)(pBase)+<span class="number">1</span>);</span><br><span class="line">	pFun();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="true">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title='0' data-url='http://music.163.com/song/media/outer/url?id=420154189.mp3'></li>
+                        
+                    
+                        
+                            <li title='1' data-url='http://music.163.com/song/media/outer/url?id=527957820.mp3'></li>
+                        
+                    
+                        
+                            <li title='2' data-url='http://music.163.com/song/media/outer/url?id=1645064.mp3'></li>
+                        
+                    
+                        
+                            <li title='3' data-url='http://music.163.com/song/media/outer/url?id=39635710.mp3'></li>
+                        
+                    
+                        
+                            <li title='4' data-url='http://music.163.com/song/media/outer/url?id=464448450.mp3'></li>
+                        
+                    
+                        
+                            <li title='5' data-url='http://music.163.com/song/media/outer/url?id=33875750.mp3'></li>
+                        
+                    
+                        
+                            <li title='6' data-url='http://music.163.com/song/media/outer/url?id=864711417.mp3'></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+    <div id='gitalk-container' class="comment link"
+		data-enable='true'
+        data-ae='true'
+        data-ci='b4b7681976b71e1c4b85'
+        data-cs='1c0802349efe79789f01f3b548e96a4baf049907'
+        data-r='HNightMan.github.io'
+        data-o='HNightMan'
+        data-a='HNightMan'
+        data-d='false'
+    >查看评论</div>
+
+
+    </div>
+    
+        <div class='side'>
+			<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#C-%E8%99%9A%E5%87%BD%E6%95%B0"><span class="toc-number">1.</span> <span class="toc-text">C++虚函数</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%99%9A%E5%87%BD%E6%95%B0%E8%A1%A8"><span class="toc-number">1.1.</span> <span class="toc-text">虚函数表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E8%88%AC%E7%BB%A7%E6%89%BF-%E6%97%A0%E8%99%9A%E5%87%BD%E6%95%B0%E8%A6%86%E7%9B%96"><span class="toc-number">1.2.</span> <span class="toc-text">一般继承(无虚函数覆盖)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E8%88%AC%E7%BB%A7%E6%89%BF-%E6%9C%89%E8%99%9A%E5%87%BD%E6%95%B0%E8%A6%86%E7%9B%96"><span class="toc-number">1.3.</span> <span class="toc-text">一般继承(有虚函数覆盖)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF-%E6%97%A0%E8%99%9A%E5%87%BD%E6%95%B0%E8%A6%86%E7%9B%96"><span class="toc-number">1.4.</span> <span class="toc-text">多重继承(无虚函数覆盖)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF-%E6%9C%89%E8%99%9A%E5%87%BD%E6%95%B0%E8%A6%86%E7%9B%96"><span class="toc-number">1.5.</span> <span class="toc-text">多重继承(有虚函数覆盖)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E6%80%A7"><span class="toc-number">1.6.</span> <span class="toc-text">安全性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E4%BB%A5%E9%80%9A%E8%BF%87%E7%88%B6%E7%B1%BB%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E5%AD%90%E7%B1%BB%E8%87%AA%E5%B7%B1%E7%9A%84%E8%99%9A%E5%87%BD%E6%95%B0"><span class="toc-number">1.6.1.</span> <span class="toc-text">可以通过父类指针访问子类自己的虚函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BF%E9%97%AEnon-public%E7%9A%84%E8%99%9A%E5%87%BD%E6%95%B0"><span class="toc-number">1.6.2.</span> <span class="toc-text">访问non-public的虚函数</span></a></li></ol></li></ol></li></ol>	
+        </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>

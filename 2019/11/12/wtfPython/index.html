@@ -1,0 +1,275 @@
+
+<!DOCTYPE html>
+<html lang="" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Python奇技淫巧 - Theorist</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="Theorist,"> 
+    <meta name="description" content="Theorist&#39;s Blog,问题来源于2019Hackergame中一道考察 Python 语言奇技淫巧（各种边界情况）的题，Python版本为3.7.
+123def challenge_1(self, answer):   ,"> 
+    <meta name="author" content="Theorist"> 
+    <link rel="alternative" href="atom.xml" title="Theorist" type="application/atom+xml"> 
+    <link rel="icon" href="https://s2.ax1x.com/2019/07/10/Z6aCSs.png"> 
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+	<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({
+              google_ad_client: "ca-pub-8691406134231910",
+              enable_page_level_ads: true
+         });
+    </script>
+    <script async custom-element="amp-auto-ads"
+        src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
+    </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">Theorist</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="https://theorist.fun"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">Python奇技淫巧</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">Python奇技淫巧</h1>
+        <div class="stuff">
+            <span>十一月 12, 2019</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/Python/" rel="tag">Python</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag">笔记</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <p>问题来源于2019Hackergame中一道考察 Python 语言奇技淫巧（各种边界情况）的题，Python版本为3.7.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">challenge_1</span>(<span class="params">self, answer</span>):</span></span><br><span class="line">    <span class="keyword">if</span> answer == <span class="string">&quot;Hello&quot;</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>直接输入 <code>&#39;Hello&#39;</code> 即可过关。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">challenge_2</span>(<span class="params">self, answer</span>):</span></span><br><span class="line">    a, b, c, d = answer</span><br><span class="line">    <span class="keyword">if</span> a == b <span class="keyword">and</span> a <span class="keyword">is</span> b <span class="keyword">and</span> c == d <span class="keyword">and</span> c <span class="keyword">is</span> <span class="keyword">not</span> d:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>Python 中 <code>==</code> 表示判断相等关系，而 <code>is</code> 判断是否为同一个对象。相等并且为同一个对象的例子可以是 <code>None</code>。一些整数和字符串也可能满足这个性质，但这与实现有关，Python 并不保证这一点。</p>
+<p>相等但是不为同一个对象的例子，找一种可变的数据类型即可，例如列表。</p>
+<p>一个例子：<code>1, 1, [1], [1]</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">challenge_3</span>(<span class="params">self, answer</span>):</span></span><br><span class="line">    <span class="keyword">if</span> answer <span class="keyword">in</span> answer == answer:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>这里 <code>in</code> 和 <code>==</code> 的优先级是什么呢？其实 Python 中比较运算这样连起来写等价于 <code>answer in answer and answer == answer</code>，正如 <code>1 &lt; x &lt; 2</code> 等价于 <code>1 &lt; x and x &lt; 2</code>。</p>
+<p>随便一个字符串都可以过关。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">challenge_4</span>(<span class="params">self, answer</span>):</span></span><br><span class="line">    a1, b1 = answer</span><br><span class="line">    a2, b2 = answer</span><br><span class="line">    <span class="keyword">if</span> a1 * <span class="number">2</span> != a1 <span class="keyword">and</span> b1 * <span class="number">2</span> != b1:</span><br><span class="line">        a1 *= <span class="number">2</span></span><br><span class="line">        b1 *= <span class="number">2</span></span><br><span class="line">        <span class="keyword">if</span> a1 == a2 <span class="keyword">and</span> b1 != b2:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>这个小题需要我们找到两个对象，其中一个 <code>*= 2</code> 之后对象本身会改变（和自己的另一个引用相等），而另一个对象 <code>*= 2</code> 之后引用改变（和原来自己的引用不相等）。找一个 mutable 和一个 immutable 即可，例如 <code>[1], 1</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">challenge_5</span>(<span class="params">self, answer</span>):</span></span><br><span class="line">    r = reversed([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])</span><br><span class="line">    <span class="keyword">if</span> list(r) == list(r) + answer:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>看上去像是 <code>answer = []</code>，但实际上 <code>reversed([1, 2, 3])</code> 是一个 iterator，遍历一次之后就空了，所以答案是 <code>[3, 2, 1]</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">challenge_6</span>(<span class="params">self, answer</span>):</span></span><br><span class="line">    a, b = answer</span><br><span class="line">    <span class="keyword">if</span> max(a, b) != max(b, a):</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p><code>max</code> 函数用对象之间的比较运算来取出最大值。我们可以找 <code>&#123;0&#125;, &#123;1&#125;</code> 这两个集合，Python 中集合的比较运算是判断（真）子集关系，所以 <code>&#123;0&#125; &gt; &#123;1&#125;</code> 和 <code>&#123;1&#125; &gt; &#123;0&#125;</code> 都是 <code>False</code>，两次 <code>max</code> 结果不同。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">challenge_7</span>(<span class="params">self, answer</span>):</span></span><br><span class="line">    a, b, c = answer</span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> a, b, c:</span><br><span class="line">        <span class="keyword">if</span> isinstance(x, float) <span class="keyword">or</span> isinstance(x, complex):</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">if</span> a * (b + c) != a * b + a * c:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>不满足乘法分配律？Python 中的乘法不一定是对数值进行，字符串和列表也可以和整数做乘法，所以很容易找到 <code>2, &#39;a&#39;, &#39;b&#39;</code> 这样的解，此时等号两边是 <code>abab</code> 和 <code>aabb</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">challenge_8</span>(<span class="params">self, answer</span>):</span></span><br><span class="line">    a, b, c = answer</span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> a, b, c:</span><br><span class="line">        <span class="keyword">if</span> isinstance(x, float) <span class="keyword">or</span> isinstance(x, complex):</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">if</span> a * (b * c) != (a * b) * c:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>不满足乘法结合律？也可以和上一题一样用字符串或者列表来构造。这里可以利用它们乘以负数时总是会得到空串的性质，例如一个解是 <code>[0], -1, -1</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">challenge_9</span>(<span class="params">self, answer</span>):</span></span><br><span class="line">    a, b = answer</span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> a, b:</span><br><span class="line">        <span class="keyword">if</span> isinstance(x, float) <span class="keyword">or</span> isinstance(x, complex):</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">if</span> type(a ** b) != type(b ** a):</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>需要 <code>a ** b</code> 和 <code>b ** a</code> 的类型不同。这里想要考察，Python 中相同基本类型的运算结果类型，可能与具体的值相关。</p>
+<p><code>(-1) ** 2 = 1</code>，是 <code>int</code> 类型，而 <code>2 ** (-1) = 0.5</code>，是 <code>float</code> 类型。若没有判断不能为浮点型也可以用 <code>(-1) ** 0.5</code> 来得到 <code>complex</code> 复数类型。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">challenge_10</span>(<span class="params">self, answer</span>):</span></span><br><span class="line">    a, b = answer</span><br><span class="line">    <span class="keyword">if</span> a <span class="keyword">and</span> a.count(b) &gt; len(a):</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p><code>a</code> 非空，并且 <code>a</code> 里面对 <code>b</code> 进行无覆盖的计数结果大于 <code>a</code> 的长度，这看起来不可能，其实 <code>b</code> 是空串的时候就可以。一个可能的解是 <code>&#39;a&#39;, &#39;&#39;</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">challenge_11</span>(<span class="params">self, answer</span>):</span></span><br><span class="line">    <span class="keyword">if</span> max(answer) != max(*answer):</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>Python 中的函数可以以 <code>max(1, 2, 3)</code> 的形式调用，也可以以 <code>max([1, 2, 3])</code> 的形式调用。当参数个数为 1 时，就会匹配后一种形式。所以我们只需要让 <code>answer</code> 列表里面只有一个元素，这样 <code>max(*answer)</code> 就也会匹配到第二种形式，从而可以做到两个 <code>max</code> 的结果不相同。一个可能的解是 <code>[[0]]</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">challenge_12</span>(<span class="params">self, answer</span>):</span></span><br><span class="line">    a, b = answer</span><br><span class="line">    <span class="keyword">if</span> a &lt; b <span class="keyword">and</span> all(x &gt; y <span class="keyword">for</span> x, y <span class="keyword">in</span> zip(a, b)):</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p><code>a</code> 比 <code>b</code> 小，但是 <code>a</code> 中的每个元素都比 <code>b</code> 中对应位置的元素大？看起来不大可能，其实 <code>a</code> 是空列表并且 <code>b</code> 非空的时候就可以做到，因为 <code>a</code> 中根本没有元素，对空集计算 <code>all</code> 会得到 <code>True</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">challenge_13</span>(<span class="params">self, answer</span>):</span></span><br><span class="line">    a, b = answer</span><br><span class="line">    <span class="keyword">if</span> b <span class="keyword">and</span> <span class="keyword">not</span> (a ^ b) - a:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>看似 <code>a</code> 和 <code>b</code> 是两个整数，但如果这样的话，我们可以推出 <code>a ^ b == a</code>，从而 <code>b == 0</code>，矛盾，这是不可能的。除了整数以外，集合也支持 <code>^</code> 和 <code>-</code> 运算，很容易找到满足题目中关系的集合，例如 <code>&#123;1&#125;, &#123;1&#125;</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">challenge_14</span>(<span class="params">self, answer</span>):</span></span><br><span class="line">    backup = deepcopy(answer)</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        answer[<span class="number">0</span>] += answer[<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">if</span> backup != answer:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>这里 <code>answer[0] += answer[1]</code> 一行执行时需要产生异常，但是却需要 <code>answer</code> 的值发生变化。这是 Python 官方文档 FAQ 中<a target="_blank" rel="noopener" href="https://docs.python.org/3/faq/programming.html#why-does-a-tuple-i-item-raise-an-exception-when-the-addition-works">指出</a>的一种特殊情况，让 <code>answer</code> 是 tuple 并且 <code>answer[0]</code> 是 list 就可能触发这种情况，原因是 list 的 <code>+=</code> 运算可以正常进行，但是接下来在 tuple 中更新引用时会失败，tuple 是 immutable 类型。答案可以是 <code>[1], [1]</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">challenge_15</span>(<span class="params">self, answer</span>):</span></span><br><span class="line">    item, l = answer</span><br><span class="line">    <span class="keyword">if</span> item <span class="keyword">in</span> l <span class="keyword">and</span> <span class="keyword">not</span> min(l) &lt;= item &lt;= max(l):</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>看起来似乎需要找一个列表和一个列表中的元素，元素不在列表的最大和最小值之间。但其实 <code>item</code> 和 <code>l</code> 都可以是字符串，此时 <code>item</code> 可以是一个长度大于等于 2 的字符串，而 <code>min(l)</code> 和 <code>max(l)</code> 都是按单个字符计算的。一个可能的答案是 <code>&#39;aa&#39;, &#39;aaa&#39;</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">challenge_16</span>(<span class="params">self, answer</span>):</span></span><br><span class="line">    item, l = answer</span><br><span class="line">    <span class="keyword">if</span> item == <span class="number">233</span> <span class="keyword">and</span> item <span class="keyword">in</span> l <span class="keyword">and</span> l <span class="keyword">in</span> l:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>看似不可能。我们可以从 <code>l in l</code> 开始思考，Python 中什么字面量可以 <code>in</code> 它自己呢？可以是字符串或者 <code>bytes</code>。对 <code>bytes</code> 进行遍历时，元素是 0~255 范围的 <code>int</code>，所以 <code>233, b&#39;\xe9&#39;</code> 可以满足条件。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">challenge_17</span>(<span class="params">self, answer</span>):</span></span><br><span class="line">    item, l = answer</span><br><span class="line">    <span class="keyword">if</span> l[<span class="number">0</span>] == item <span class="keyword">and</span> item <span class="keyword">not</span> <span class="keyword">in</span> l:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>对 <code>l</code> 取下标 <code>0</code> 得到的元素并不 <code>in l</code>，这可能吗？可以想想 Python 的各种基本类型，其中 <code>dict</code> 就可以满足我们的要求，因为对 <code>dict</code> 类型取下标拿到的是 value，而判断对象是否 <code>in</code> 一个 dict 时，是根据 key 的集合判断的。一个可能的答案是 <code>1, &#123;0:1&#125;</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">challenge_18</span>(<span class="params">self, answer</span>):</span></span><br><span class="line">    a, b = answer</span><br><span class="line">    <span class="keyword">if</span> (a - b) != -(b - a):</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>这个小题有点 tricky，看起来使用各种 <code>list</code>、<code>dict</code>、<code>set</code> 之类的东西搞不定了。我们可以拿出杀手锏，浮点数中的特殊值，<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/17628613/what-is-inf-and-nan"><code>inf</code> 和 <code>nan</code></a>。这种浮点数并不能直接输入，但经过简单尝试可以发现，输入很大的数，例如 <code>1e999</code>，就可以得到 <code>inf</code>，而 <code>inf - inf</code> 可以得到 <code>nan</code>，<code>nan</code> 有一个性质就是 <code>nan == nan</code> 并不成立，所以这道题的答案可以是 <code>1e999, 1e999</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">challenge_19</span>(<span class="params">self, answer</span>):</span></span><br><span class="line">    <span class="keyword">if</span> answer.isdecimal():</span><br><span class="line">        <span class="keyword">if</span> len(answer) &lt; <span class="number">5</span>:</span><br><span class="line">            <span class="keyword">if</span> sum(ord(c) - ord(<span class="string">&quot;0&quot;</span>) <span class="keyword">for</span> c <span class="keyword">in</span> answer) == <span class="number">23333</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>长度小于 5 的字符串，每个字符都是 <code>decimal</code>，并且取 Unicode 码之后加起来需要等于 23333。我们可以发现，满足 <code>isdecimal()</code> 条件的字符，不只有 0~9 这 10 个数字，还有很多各种各样的 Unicode 字符。我们可以简单写一个程序输出它们：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0x110000</span>):</span><br><span class="line">    <span class="keyword">if</span> chr(i).isdecimal():</span><br><span class="line">        print(i)</span><br></pre></td></tr></table></figure>
+
+<p>在输出的这些 Unicode 码中，找到 5 个加起来是 23333 并不难，可以在适当的范围内手工尝试，也可以写程序搜索解决。例如一个可行的解是 <code>&#39;᱙᱙᱃۰&#39;</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">challenge_20</span>(<span class="params">self, answer</span>):</span></span><br><span class="line">    <span class="keyword">if</span> len(set(str(x) <span class="keyword">for</span> x <span class="keyword">in</span> answer)) == <span class="number">7</span> <span class="keyword">and</span> all(x == <span class="number">0</span> <span class="keyword">for</span> x <span class="keyword">in</span> answer):</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>我们需要找到 7 个对象，它们转化为字符串之后各不相同，但是每个对象却都和 0 相等。比较好想到的例子是 <code>0</code>、<code>0.0</code>、<code>False</code> 和 <code>0j</code>，它们分别是 <code>int</code>、<code>float</code>、<code>bool</code>、<code>complex</code> 四种 Python 数值类型的对象。可 Python 只有这四种数值类型，另外三个去哪里找呢？</p>
+<p>我们可以发现，浮点数标准中，是存在 <code>0.0</code> 和 <code>-0.0</code> 两个表示 0 的值的，它们相等。Python 中，<code>str(-0.0)</code> 可以得到 <code>&#39;-0.0&#39;</code> 这个字符串。我们可以类似构造出复数类型下面的各种包含浮点 <code>0.0</code> 和 <code>-0.0</code> 的组合。最终的 7 个对象是：<code>0, 0.0, -0.0, False, -0.0-0.0j, -0.0j, 0j</code>。</p>
+<p>转载于<a target="_blank" rel="noopener" href="https://github.com/ustclug/hackergame2019-writeups/blob/master/official/%E4%B8%8D%E5%90%8C%E5%AF%BB%E5%B8%B8%E7%9A%84_Python_%E8%80%83%E8%AF%95/README.md">2019hackergame不同寻常的python考试</a></p>
+<p>另外关于Python有趣的冷知识的一些参考资料：</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/satwikkansal/wtfpython">https://github.com/satwikkansal/wtfpython</a></p>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="true">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title='0' data-url='http://music.163.com/song/media/outer/url?id=420154189.mp3'></li>
+                        
+                    
+                        
+                            <li title='1' data-url='http://music.163.com/song/media/outer/url?id=527957820.mp3'></li>
+                        
+                    
+                        
+                            <li title='2' data-url='http://music.163.com/song/media/outer/url?id=1645064.mp3'></li>
+                        
+                    
+                        
+                            <li title='3' data-url='http://music.163.com/song/media/outer/url?id=39635710.mp3'></li>
+                        
+                    
+                        
+                            <li title='4' data-url='http://music.163.com/song/media/outer/url?id=464448450.mp3'></li>
+                        
+                    
+                        
+                            <li title='5' data-url='http://music.163.com/song/media/outer/url?id=33875750.mp3'></li>
+                        
+                    
+                        
+                            <li title='6' data-url='http://music.163.com/song/media/outer/url?id=864711417.mp3'></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+    <div id='gitalk-container' class="comment link"
+		data-enable='true'
+        data-ae='true'
+        data-ci='b4b7681976b71e1c4b85'
+        data-cs='1c0802349efe79789f01f3b548e96a4baf049907'
+        data-r='HNightMan.github.io'
+        data-o='HNightMan'
+        data-a='HNightMan'
+        data-d='false'
+    >查看评论</div>
+
+
+    </div>
+    
+        <div class='side'>
+				
+        </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>

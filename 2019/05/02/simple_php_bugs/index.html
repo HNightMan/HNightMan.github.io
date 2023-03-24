@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+<html lang="" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>关于简单的php函数漏洞和绕过 - Theorist</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="Theorist,"> 
+    <meta name="description" content="Theorist&#39;s Blog,先贴三张php官方类型比较的图
+
+
+
+php是一种弱类型语言，颇具灵活性，但也因此存在一些绕过的奇技淫巧，一些基础ctf题里也有php代码审计这一类，下面记录一些简单php函数绕过点，如有错误还请指,"> 
+    <meta name="author" content="Theorist"> 
+    <link rel="alternative" href="atom.xml" title="Theorist" type="application/atom+xml"> 
+    <link rel="icon" href="https://s2.ax1x.com/2019/07/10/Z6aCSs.png"> 
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+	<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({
+              google_ad_client: "ca-pub-8691406134231910",
+              enable_page_level_ads: true
+         });
+    </script>
+    <script async custom-element="amp-auto-ads"
+        src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
+    </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">Theorist</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="https://theorist.fun"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">关于简单的php函数漏洞和绕过</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">关于简单的php函数漏洞和绕过</h1>
+        <div class="stuff">
+            <span>五月 02, 2019</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/PHP/" rel="tag">PHP</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag">笔记</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <p>先贴三张php官方类型比较的图</p>
+<p><img src="https://s2.ax1x.com/2019/09/11/na4Hjs.png"></p>
+<p><img src="https://s2.ax1x.com/2019/09/11/na4qun.png"></p>
+<p><img src="https://s2.ax1x.com/2019/09/11/na4OH0.png"></p>
+<p>php是一种弱类型语言，颇具灵活性，但也因此存在一些绕过的奇技淫巧，一些基础ctf题里也有php代码审计这一类，下面记录一些简单php函数绕过点，如有错误还请指点。</p>
+<h5 id="extrac"><a href="#extrac" class="headerlink" title="extrac():"></a>extrac():</h5><p>可传入一个带键值的数组，分别把键值赋值给对应键名的变量，若变量存在则会覆盖原值，可以用这个特性改变已存在变量的值。</p>
+<h5 id="file-get-contents"><a href="#file-get-contents" class="headerlink" title="file_get_contents():"></a>file_get_contents():</h5><p>传入一个文件名，将文件内容读取至一个字符串中，但是如果找不到该文件的话它会返回FALSE。</p>
+<h5 id="strcmp-v1-v2"><a href="#strcmp-v1-v2" class="headerlink" title="strcmp($v1,$v2):"></a>strcmp($v1,$v2):</h5><p>比较两个值，若$v1&lt;$v2返回&lt;0,若$v&gt;$v2返回&gt;0，若相等返回0，但是这个函数不能处理数组，而且遇到数组报错之后会返回NULL。</p>
+<h5 id="md5"><a href="#md5" class="headerlink" title="md5():"></a>md5():</h5><p>md5函数存在碰撞问题，即多个明文加密后密文相同，php的0e开头字符串会被判定成科学计数法的数字也常常和md5联系在一起，还有md5函数不能处理数组，遇到数组也会返回NULL，另外sha1()函数处理数组也会返回NULL。</p>
+<h5 id="strpos-str1-str2-："><a href="#strpos-str1-str2-：" class="headerlink" title="strpos($str1,$str2)："></a>strpos($str1,$str2)：</h5><p>查找$str2在$str1中第一次出现的位置（0开始），若没有出现则返回FALSE，若是$str1为数组则会返回NULL，$str2为数组会返回FALSE。</p>
+<p>另外还有类似函数:</p>
+<p>stripos(): 查找首次出现的位置，不区分大小写；strrpos(): 查找最后一次出现的位置，区分大小写；strripos(): 查找最后一次出现的位置，不区分大小写。</p>
+<h5 id="大于小于等于符号判断大小"><a href="#大于小于等于符号判断大小" class="headerlink" title="大于小于等于符号判断大小:"></a>大于小于等于符号判断大小:</h5><p>php中 如果判断大小时遇到数组，优先认为数组较大，然后才是数字和字符串，在数组间的比较中先判断数组的大小（数组中有多少数），若大小相同再依次从前往后判断数的大小，相等则继续判断下一位，不相等则返回结果。字符串与数字比较时若字符串全由数字组成则转化成数字比较，否则转化成字符串比较。</p>
+<h5 id="ereg"><a href="#ereg" class="headerlink" title="ereg():"></a>ereg():</h5><p>php中ereg()函数时用来在字符串中查找是否含有指定字串，含有则返回TRUE否则返回FALSE，大小写敏感。</p>
+<p>它处理数组会返回NULL，字符串中遇到%00会认为字符串结束，不再匹配后面的字符。这个函数在php5以后就已经被舍弃了。</p>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="true">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title='0' data-url='http://music.163.com/song/media/outer/url?id=420154189.mp3'></li>
+                        
+                    
+                        
+                            <li title='1' data-url='http://music.163.com/song/media/outer/url?id=527957820.mp3'></li>
+                        
+                    
+                        
+                            <li title='2' data-url='http://music.163.com/song/media/outer/url?id=1645064.mp3'></li>
+                        
+                    
+                        
+                            <li title='3' data-url='http://music.163.com/song/media/outer/url?id=39635710.mp3'></li>
+                        
+                    
+                        
+                            <li title='4' data-url='http://music.163.com/song/media/outer/url?id=464448450.mp3'></li>
+                        
+                    
+                        
+                            <li title='5' data-url='http://music.163.com/song/media/outer/url?id=33875750.mp3'></li>
+                        
+                    
+                        
+                            <li title='6' data-url='http://music.163.com/song/media/outer/url?id=864711417.mp3'></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+    <div id='gitalk-container' class="comment link"
+		data-enable='true'
+        data-ae='true'
+        data-ci='b4b7681976b71e1c4b85'
+        data-cs='1c0802349efe79789f01f3b548e96a4baf049907'
+        data-r='HNightMan.github.io'
+        data-o='HNightMan'
+        data-a='HNightMan'
+        data-d='false'
+    >查看评论</div>
+
+
+    </div>
+    
+        <div class='side'>
+			<ol class="toc"><li class="toc-item toc-level-5"><a class="toc-link" href="#extrac"><span class="toc-number">1.</span> <span class="toc-text">extrac():</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#file-get-contents"><span class="toc-number">2.</span> <span class="toc-text">file_get_contents():</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#strcmp-v1-v2"><span class="toc-number">3.</span> <span class="toc-text">strcmp($v1,$v2):</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#md5"><span class="toc-number">4.</span> <span class="toc-text">md5():</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#strpos-str1-str2-%EF%BC%9A"><span class="toc-number">5.</span> <span class="toc-text">strpos($str1,$str2)：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A4%A7%E4%BA%8E%E5%B0%8F%E4%BA%8E%E7%AD%89%E4%BA%8E%E7%AC%A6%E5%8F%B7%E5%88%A4%E6%96%AD%E5%A4%A7%E5%B0%8F"><span class="toc-number">6.</span> <span class="toc-text">大于小于等于符号判断大小:</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#ereg"><span class="toc-number">7.</span> <span class="toc-text">ereg():</span></a></li></ol>	
+        </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>

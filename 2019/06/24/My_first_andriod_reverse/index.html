@@ -1,0 +1,278 @@
+
+<!DOCTYPE html>
+<html lang="" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bugku安卓逆向 - Theorist</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="Theorist,"> 
+    <meta name="description" content="Theorist&#39;s Blog,前几天刚接触安卓逆向，做了几道安卓逆向题，bugku的几道入门题，惊为天人，这Java代码如此清晰明了，不像ida的C语言伪代码让人看得头都爆炸，虽说简单而且很多人都做过，也记录一下入坑过程。
+Ti,"> 
+    <meta name="author" content="Theorist"> 
+    <link rel="alternative" href="atom.xml" title="Theorist" type="application/atom+xml"> 
+    <link rel="icon" href="https://s2.ax1x.com/2019/07/10/Z6aCSs.png"> 
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+	<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({
+              google_ad_client: "ca-pub-8691406134231910",
+              enable_page_level_ads: true
+         });
+    </script>
+    <script async custom-element="amp-auto-ads"
+        src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
+    </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">Theorist</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="https://theorist.fun"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">Bugku安卓逆向</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">Bugku安卓逆向</h1>
+        <div class="stuff">
+            <span>六月 24, 2019</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/Android/" rel="tag">Android</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/writeup/" rel="tag">writeup</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <p>前几天刚接触安卓逆向，做了几道安卓逆向题，bugku的几道入门题，惊为天人，这Java代码如此清晰明了，不像ida的C语言伪代码让人看得头都爆炸，虽说简单而且很多人都做过，也记录一下入坑过程。</p>
+<h2 id="Timer"><a href="#Timer" class="headerlink" title="Timer"></a>Timer</h2><p>安装打开是一个倒计时，提示200000秒后出现flag<br>查看Java代码(可以用不同的工具，我用的Jeb2和Androidkiller，jeb2中按Q可以转化smali代码和Java代码，Androidkiller也有工具可以查看Java代码)，<code>beg</code>是开始时间+200000s，也就是出现flag的时间，<code>now</code>是现在实时时间 </p>
+<p><img src="https://s2.ax1x.com/2019/06/26/ZmYmb8.png"></p>
+<p>关键代码:一个判断，判断<code>beg</code>和<code>now</code>时间差小于0则输出答案，还有个关键变量<code>k</code>，初始值为0</p>
+<p>可以直接修改判断条件绕过判断，剩下的问题就在于关键变量<code>k</code>的值了，代码意思是对从200000遍历到1的所有值用<code>is2</code>函数判断，再根据判断结果改变<code>k</code>的值，我们跟进<code>is2</code>函数：</p>
+<p><img src="https://s2.ax1x.com/2019/06/26/ZmYuVS.png"></p>
+<p>照样写脚本，跑出k的值：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">is1</span>(<span class="params">x</span>):</span></span><br><span class="line">    r = <span class="literal">True</span></span><br><span class="line">    <span class="keyword">if</span> x &gt; <span class="number">3</span>:</span><br><span class="line">        <span class="keyword">if</span>(x % <span class="number">2</span> != <span class="number">0</span> <span class="keyword">and</span> x % <span class="number">3</span> != <span class="number">0</span>):</span><br><span class="line">            p = <span class="number">5</span></span><br><span class="line">            <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">                <span class="keyword">if</span> p*p &lt;= x:</span><br><span class="line">                    <span class="keyword">if</span>(x % p != <span class="number">0</span> <span class="keyword">and</span> x % (p+<span class="number">2</span>) != <span class="number">0</span>):</span><br><span class="line">                        p += <span class="number">6</span></span><br><span class="line">                        <span class="keyword">continue</span></span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    <span class="keyword">return</span> r</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">        r = <span class="literal">False</span></span><br><span class="line">    <span class="keyword">elif</span> x &lt;= <span class="number">1</span>:</span><br><span class="line">        r = <span class="literal">False</span></span><br><span class="line">    <span class="keyword">return</span> r</span><br><span class="line"></span><br><span class="line">k = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">200000</span>, <span class="number">0</span>, <span class="number">-1</span>):</span><br><span class="line">    <span class="keyword">if</span> is1(i):</span><br><span class="line">        k += <span class="number">100</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        k -= <span class="number">1</span></span><br><span class="line">print(k)</span><br><span class="line"></span><br><span class="line"><span class="comment">#k=1616384</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>jeb2中在java代码中找到判断点按Q找到对应的smali代码位置，修改smali源码（可以用AndroidKiller或者apktool等），可以将<code>gtz</code>(大于等于)换成<code>ltz</code>（小于等于），也可以用其他操作，逻辑上能跳过等待都行。  </p>
+<p><img src="https://s2.ax1x.com/2019/06/26/ZmYKUg.png"></p>
+<p>然后还要解决k值的问题，从下面<code>iget</code>（取值，用于操作int这种的值类型）语句可以看出v3是k的值，在这句后面加上<code>const v3,1616384</code>（赋值给v3）然后编译，签名（AndroidKiller可以签名），再安装就会直接出现flag了，记得换flag格式。</p>
+<h2 id="LoopAndLoop"><a href="#LoopAndLoop" class="headerlink" title="LoopAndLoop"></a>LoopAndLoop</h2><p>安装打开让你输入密码得到flag，直接查看Java代码，找到输出flag的位置：</p>
+<p><img src="https://s2.ax1x.com/2019/06/27/ZmBIDs.png"></p>
+<p>跟进判断函数(check)：</p>
+<p>发现一个原生（native）函数：Java中使用其他语言编写的函数<br>现在一些app，为了安全或者效率问题，会把一些重要的功能放到native层，Android中一般native层使用的是so库文件<br>然后apktool反编译后用IDA调试<code>liblhm.so</code>文件，找到<code>chec</code>函数：</p>
+<p><img src="https://s2.ax1x.com/2019/06/27/ZmB5uj.png"></p>
+<p>意思大概是传入两个参数<code>v1</code>和<code>v2</code>，再根据<code>2*v2%3</code>的值确定调用check1，2，3中的一个函数，以<code>v1</code>和<code>v2-1</code>作为参数，最后<code>v2&lt;=1</code>则返回<code>v1</code><br>check1，2，3在Java代码里，都比较简单：</p>
+<p><img src="https://s2.ax1x.com/2019/06/27/ZmBLCT.png"></p>
+<p><img src="https://s2.ax1x.com/2019/06/27/ZmBb5V.png"></p>
+<p><img src="https://s2.ax1x.com/2019/06/27/ZmBO8U.png"></p>
+<p>我们观察代码并照样写逆向脚本，原来<code>v1</code>是从输入的值到1835996258，<code>v2</code>从99到2，逆向脚本<code>v2</code>就从2到99，<code>v1</code>从1835996258到需要我们输入的正确密码，3个check函数里面的加减给变一下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fun</span>(<span class="params">a,b</span>):</span></span><br><span class="line">    <span class="keyword">if</span>(b&gt;<span class="number">99</span>):</span><br><span class="line">        <span class="keyword">return</span> a</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">if</span>(<span class="number">2</span>*b%<span class="number">3</span>==<span class="number">0</span>):</span><br><span class="line">            <span class="keyword">return</span> fun1(a,b+<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">elif</span>(<span class="number">2</span>*b%<span class="number">3</span>==<span class="number">1</span>):</span><br><span class="line">            <span class="keyword">return</span> fun2(a,b+<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> fun3(a,b+<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fun1</span>(<span class="params">a,b</span>):</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">100</span>):</span><br><span class="line">        a-=i</span><br><span class="line">    <span class="keyword">return</span> fun(a,b)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fun2</span>(<span class="params">a,b</span>):</span></span><br><span class="line">    <span class="keyword">if</span>(b%<span class="number">2</span>==<span class="number">0</span>):</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">1000</span>):</span><br><span class="line">            a-=i</span><br><span class="line">        <span class="keyword">return</span> fun(a,b)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">1000</span>):</span><br><span class="line">            a+=i</span><br><span class="line">        <span class="keyword">return</span> fun(a,b)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fun3</span>(<span class="params">a,b</span>):</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">10000</span>):</span><br><span class="line">        a-=i</span><br><span class="line">    <span class="keyword">return</span> fun(a,b)</span><br><span class="line"></span><br><span class="line">print(fun(<span class="number">1835996258</span>,<span class="number">2</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">#算出密码为236492408</span></span><br></pre></td></tr></table></figure>
+<p>再打开app输入密码就能得到flag了</p>
+<h2 id="easy-100"><a href="#easy-100" class="headerlink" title="easy-100"></a>easy-100</h2><p>安装打开还是常见的让你输入key，jeb查看Java代码，加上main一共有6个函数，看类名估计都有用：</p>
+<p><img src="https://s2.ax1x.com/2019/07/02/ZJIKAg.png"></p>
+<p>先看<code>MainActivity</code>，<code>onCreate</code>方法，执行了<code>p</code>方法，之后对<code>class d</code>创建了一个按钮监听事件，<code>p</code>方法是把<code>url.png</code>以二进制方式打开，从144的位置开始读取16字符赋值给<code>v</code>，apktool反编译后Winhex查看可以确定<code>v</code>值为<code>this_is_the_key.</code>：</p>
+<p><img src="https://s2.ax1x.com/2019/07/02/ZJI4Cd.png"><br><img src="https://s2.ax1x.com/2019/07/02/ZJTOpj.png"></p>
+<p>跟进<code>class d</code>分析，发现调用了<code>MainActivity.a()</code>函数对输入进行校检：</p>
+<p><img src="https://s2.ax1x.com/2019/07/02/ZJTkOP.png"></p>
+<p>再回去看<code>MainActivity.a()</code>,发现有重载，一个参数，两个参数，三个参数的<code>MainActivity.a()</code>函数，<code>d</code>中外层调用了三个参数的<code>MainActivity.a()</code>函数，<code>MainActivity</code>作为第一个参数，一个参数的<code>MainActivity.a()</code>函数作为第二个参数，输入的字符串作为第三个参数，三个参数的<code>MainActivity.a()</code>函数返回的是两个参数的<code>MainActivity.a()</code>函数，一层层分析其实最后就是<code>a(&quot;this_is_the_key.&quot;,输入的字符串)</code>：</p>
+<p><img src="https://s2.ax1x.com/2019/07/02/ZJTtkF.png"></p>
+<p>两个参数的<code>MainActivity.a()</code>函数返回<code>class c.a()</code>函数，再跟进，又有重载………先调用一参数的<code>class c.a()</code>将<code>&quot;this_is_the_key.&quot;</code>每两个字符交换位置得到<code>&quot;htsii__sht_eek.y&quot;</code>，然后将这个和输入的字符串传到<code>class a</code>的函数去：</p>
+<p><img src="https://s2.ax1x.com/2019/07/02/ZJ7vPe.png"></p>
+<p>跟进<code>class a</code>，是一个AES加密，ECB模式，PKCS5Padding填充，<code>&quot;htsii__sht_eek.y&quot;</code>作为密钥，加密后返回与两个参数的<code>MainActivity.a()</code>中的一长串相等就ok了，网上找在线解密就行，我试了好几个网站才搞定。</p>
+<p><img src="https://s2.ax1x.com/2019/07/02/ZJH1aT.png"></p>
+<p>网友写的解密脚本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Crypto.Cipher <span class="keyword">import</span> AES</span><br><span class="line"> </span><br><span class="line">data = [<span class="number">0x15</span>, <span class="number">0xa3</span>, <span class="number">0xbc</span>, <span class="number">0xa2</span>, <span class="number">0x56</span>, <span class="number">0x75</span>, <span class="number">0xed</span>, <span class="number">0xbc</span>, </span><br><span class="line">        <span class="number">0xa4</span>, <span class="number">0x21</span>, <span class="number">0x32</span>, <span class="number">0x76</span>, <span class="number">0x10</span>, <span class="number">0x0d</span>, <span class="number">0x01</span>, <span class="number">0xf1</span>, </span><br><span class="line">        <span class="number">0xf3</span>, <span class="number">0x03</span>, <span class="number">0x04</span>, <span class="number">0x67</span>, <span class="number">0xee</span>, <span class="number">0x51</span>, <span class="number">0x1e</span>, <span class="number">0x44</span>, </span><br><span class="line">        <span class="number">0x36</span>, <span class="number">0xa3</span>, <span class="number">0x2c</span>, <span class="number">0xe9</span>, <span class="number">0x5d</span>, <span class="number">0x62</span>, <span class="number">0x05</span>, <span class="number">0x3b</span>]</span><br><span class="line"> </span><br><span class="line"><span class="keyword">with</span> open(<span class="string">&#x27;url.png&#x27;</span>, <span class="string">&#x27;rb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    content = f.read()[<span class="number">144</span>:<span class="number">144</span>+<span class="number">16</span>]</span><br><span class="line"> </span><br><span class="line">key = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(content), <span class="number">2</span>):</span><br><span class="line">    key += content[i + <span class="number">1</span>]</span><br><span class="line">    key += content[i]</span><br><span class="line"> </span><br><span class="line">data = <span class="string">&#x27;&#x27;</span>.join([chr(c) <span class="keyword">for</span> c <span class="keyword">in</span> data])</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">decrypt</span>(<span class="params">data, key</span>):</span></span><br><span class="line">    aes = AES.new(key, AES.MODE_ECB)</span><br><span class="line">    text = aes.decrypt(data)</span><br><span class="line">    <span class="keyword">return</span> text</span><br><span class="line"> </span><br><span class="line"><span class="keyword">print</span> decrypt(data, key)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="SafeBox"><a href="#SafeBox" class="headerlink" title="SafeBox"></a>SafeBox</h2><p>安装打开，还是输入key…..，没有提交按钮，但是不影响，还是先看Java代码，<code>MainActivity</code>函数：</p>
+<p><img src="https://s2.ax1x.com/2019/07/02/ZJxMU1.png"></p>
+<p>照样写脚本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> math</span><br><span class="line">v6=<span class="string">&quot;NJCTF&#123;&quot;</span></span><br><span class="line"><span class="keyword">for</span> v4 <span class="keyword">in</span> range(<span class="number">10000001</span>,<span class="number">99999999</span>):</span><br><span class="line">    v7=<span class="number">1</span></span><br><span class="line">    v8=<span class="number">10000000</span></span><br><span class="line">    v3=<span class="number">1</span></span><br><span class="line">    <span class="keyword">if</span>(abs(math.floor(v4/<span class="number">1000</span>)%<span class="number">100</span><span class="number">-36</span>)==<span class="number">3</span> <span class="keyword">and</span> v4%<span class="number">1000</span>%<span class="number">584</span>==<span class="number">0</span>):</span><br><span class="line">        v5=<span class="number">0</span></span><br><span class="line">        <span class="keyword">while</span>(v5&lt;<span class="number">4</span>):</span><br><span class="line">            <span class="keyword">if</span>(math.floor(v4/v7)%<span class="number">10</span>!=math.floor(v4/v8)%<span class="number">10</span>):</span><br><span class="line">                v3=<span class="number">0</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                v7*=<span class="number">10</span></span><br><span class="line">                v8/=<span class="number">10</span></span><br><span class="line">                v5+=<span class="number">1</span></span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">if</span>(v3==<span class="number">1</span>):</span><br><span class="line">            print(v4)</span><br><span class="line">            print(v6+chr(math.floor(v4/<span class="number">1000000</span>))+chr(math.floor(v4/<span class="number">10000</span>)%<span class="number">100</span>)+chr(math.floor(v4/<span class="number">100</span>)%<span class="number">100</span>)+<span class="string">&quot;f4n&#125;&quot;</span>)</span><br><span class="line"><span class="comment">#48533584</span></span><br><span class="line"><span class="comment">#NJCTF&#123;05#f4n&#125;</span></span><br></pre></td></tr></table></figure>
+<p>题上有提示flag只含大小写字母和数字，这个答案是错的，交上去也过不了，再找找发现<code>androidTest</code>类里面和<code>MainActivity</code>很像，只有一些细节不同：</p>
+<p><img src="https://s2.ax1x.com/2019/07/02/ZYAnSA.png"></p>
+<p>改脚本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> math</span><br><span class="line">v6=<span class="string">&quot;NJCTF&#123;have&quot;</span></span><br><span class="line"><span class="keyword">for</span> v4 <span class="keyword">in</span> range(<span class="number">10000001</span>,<span class="number">99999999</span>):</span><br><span class="line">    v7=<span class="number">1</span></span><br><span class="line">    v8=<span class="number">10000000</span></span><br><span class="line">    v3=<span class="number">1</span></span><br><span class="line">    <span class="keyword">if</span>(abs(math.floor(v4/<span class="number">1000</span>)%<span class="number">100</span><span class="number">-36</span>)==<span class="number">3</span> <span class="keyword">and</span> v4%<span class="number">1000</span>%<span class="number">584</span>==<span class="number">0</span>):</span><br><span class="line">        v5=<span class="number">0</span></span><br><span class="line">        <span class="keyword">while</span>(v5&lt;<span class="number">3</span>):</span><br><span class="line">            <span class="keyword">if</span>(math.floor(v4/v7)%<span class="number">10</span>!=math.floor(v4/v8)%<span class="number">10</span>):</span><br><span class="line">                v3=<span class="number">0</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                v7*=<span class="number">10</span></span><br><span class="line">                v8/=<span class="number">10</span></span><br><span class="line">                v5+=<span class="number">1</span></span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">if</span>(v3==<span class="number">1</span>):</span><br><span class="line">            print(v4)</span><br><span class="line">            print(v6+chr(math.floor(v4/<span class="number">1000000</span>))+chr(math.floor(v4/<span class="number">10000</span>)%<span class="number">100</span>)+chr(math.floor(v4/<span class="number">100</span>)%<span class="number">100</span>+<span class="number">10</span>)+<span class="string">&quot;f4n&#125;&quot;</span>)</span><br><span class="line"><span class="comment">#48533584</span></span><br><span class="line"><span class="comment">#NJCTF&#123;have05-f4n&#125;</span></span><br><span class="line"><span class="comment">#48539584</span></span><br><span class="line"><span class="comment">#NJCTF&#123;have05if4n&#125;</span></span><br></pre></td></tr></table></figure>
+<p>第二个flag满足提示的条件，交上去A了。</p>
+<h2 id="easyeasy-200"><a href="#easyeasy-200" class="headerlink" title="easyeasy-200"></a>easyeasy-200</h2><p><code>MainAcivity</code>中接收输入的字符串，先判断长度，然后用<code>Format.form()</code>函数截取，之后用<code>Check.check()</code>判断，然后调用到了native层的<code>checkEmulator</code>和<code>checkPasswd</code>函数,<code>checkPipes</code>函数检查路径是否存在，查看后知道恒返回假，最后关键就在<code>checkPasswd</code>里：</p>
+<p><img src="https://s2.ax1x.com/2019/07/02/ZYVYMn.png"></p>
+<p><img src="https://s2.ax1x.com/2019/07/02/ZYVdaT.png"></p>
+<p><img src="https://s2.ax1x.com/2019/07/02/ZYZdOI.png"></p>
+<p>apktool反编译后ida调试so文件，找到<code>checkPasswd</code>,先对传入的字符串进行了反转:</p>
+<p><img src="https://s2.ax1x.com/2019/07/02/ZYZ7hF.png"></p>
+<p>然后有一个加密，比较复杂，我看不懂，尝试在字符串里找密文，发现可疑字符串：</p>
+<p><img src="https://s2.ax1x.com/2019/07/02/ZYZLc9.png"></p>
+<p>下面的明显是base64，上面的也像，把最后的”.”换成”=”解码在反转得到flag.</p>
+<h2 id="signin"><a href="#signin" class="headerlink" title="signin"></a>signin</h2><p>签到题，看Java代码，很明显就是把输入的字符串反转再base64解码后与id<code>2131427360(0x7f0b0020)</code>处密文比较：</p>
+<p><img src="https://s2.ax1x.com/2019/07/03/ZYRrQK.png"></p>
+<p>Androidkiler逐步搜索直接就能找到密文.</p>
+<h2 id="mobile1"><a href="#mobile1" class="headerlink" title="mobile1"></a>mobile1</h2><p>看Java代码，用<code>checkSN()</code>函数校检<code>&quot;Tenshine&quot;</code>和输入的字符串：</p>
+<p><img src="https://s2.ax1x.com/2019/07/03/ZteLfU.png"></p>
+<p>看<code>checkSN()</code>函数，先判断字符串长度，后对<code>&quot;Tenshine&quot;</code>进行md5加密并转化成十六进制再截取奇数位(下标从0开始)，拼上flag格式与输入的flag比较(忽略大小写)：</p>
+<p><img src="https://s2.ax1x.com/2019/07/03/Ztu2Y6.png"></p>
+<p>分析完后用网上的在线工具就能解题。</p>
+<h2 id="mobile2"><a href="#mobile2" class="headerlink" title="mobile2"></a>mobile2</h2><p>解压后是一个文件夹，不是apk，也不能编译生成apk，其实是一道杂项题，flag在<code>AndroidManifest.xml</code>里:</p>
+<p><img src="https://s2.ax1x.com/2019/07/03/ZtGYGR.png"></p>
+<h2 id="First-Mobile-xman"><a href="#First-Mobile-xman" class="headerlink" title="First_Mobile(xman)"></a>First_Mobile(xman)</h2><p>主函数：监听，把输入的字符串传给<code>encode.check()</code>校检</p>
+<p><img src="https://s2.ax1x.com/2019/07/04/ZNBS56.png"></p>
+<p>跟进观察，算法很清晰明了：将函数里的字符串经过简单加密后与输入的字符串比较</p>
+<p><img src="https://s2.ax1x.com/2019/07/04/ZNBZVI.png"></p>
+<p>脚本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">arr=[<span class="number">23</span>, <span class="number">22</span>, <span class="number">26</span>, <span class="number">26</span>, <span class="number">25</span>, <span class="number">25</span>, <span class="number">25</span>, <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">30</span>, <span class="number">30</span>, <span class="number">29</span>, <span class="number">30</span>, <span class="number">32</span>, <span class="number">32</span>]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(len(arr)):</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> range(<span class="number">127</span>):</span><br><span class="line">        <span class="keyword">if</span>(((arr[i]+j)%<span class="number">61</span>)*<span class="number">2</span>-i==j):</span><br><span class="line">            print(chr(j),end=<span class="string">&#x27;&#x27;</span>)</span><br><span class="line"><span class="comment">#LOHILMNMLKHILKHI</span></span><br></pre></td></tr></table></figure>
+
+<p>跑出来答案怎么交都不对，flag其实是<code>XMAN&#123;LOHILMNMLKHILKHI&#125;</code>…..</p>
+<h2 id="HelloSmali2"><a href="#HelloSmali2" class="headerlink" title="HelloSmali2"></a>HelloSmali2</h2><p>这道题更像是教学性质的题吧，给你一个smali代码和一个Java代码，相互翻译其实是一样的，要过题的话直接跑Java代码就行了，我放个smali文件链接感兴趣的同学可以试着读一下：smali代码反正我是读不懂……………………</p>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="true">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title='0' data-url='http://music.163.com/song/media/outer/url?id=420154189.mp3'></li>
+                        
+                    
+                        
+                            <li title='1' data-url='http://music.163.com/song/media/outer/url?id=527957820.mp3'></li>
+                        
+                    
+                        
+                            <li title='2' data-url='http://music.163.com/song/media/outer/url?id=1645064.mp3'></li>
+                        
+                    
+                        
+                            <li title='3' data-url='http://music.163.com/song/media/outer/url?id=39635710.mp3'></li>
+                        
+                    
+                        
+                            <li title='4' data-url='http://music.163.com/song/media/outer/url?id=464448450.mp3'></li>
+                        
+                    
+                        
+                            <li title='5' data-url='http://music.163.com/song/media/outer/url?id=33875750.mp3'></li>
+                        
+                    
+                        
+                            <li title='6' data-url='http://music.163.com/song/media/outer/url?id=864711417.mp3'></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+    <div id='gitalk-container' class="comment link"
+		data-enable='true'
+        data-ae='true'
+        data-ci='b4b7681976b71e1c4b85'
+        data-cs='1c0802349efe79789f01f3b548e96a4baf049907'
+        data-r='HNightMan.github.io'
+        data-o='HNightMan'
+        data-a='HNightMan'
+        data-d='false'
+    >查看评论</div>
+
+
+    </div>
+    
+        <div class='side'>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Timer"><span class="toc-number">1.</span> <span class="toc-text">Timer</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LoopAndLoop"><span class="toc-number">2.</span> <span class="toc-text">LoopAndLoop</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#easy-100"><span class="toc-number">3.</span> <span class="toc-text">easy-100</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SafeBox"><span class="toc-number">4.</span> <span class="toc-text">SafeBox</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#easyeasy-200"><span class="toc-number">5.</span> <span class="toc-text">easyeasy-200</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#signin"><span class="toc-number">6.</span> <span class="toc-text">signin</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mobile1"><span class="toc-number">7.</span> <span class="toc-text">mobile1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mobile2"><span class="toc-number">8.</span> <span class="toc-text">mobile2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#First-Mobile-xman"><span class="toc-number">9.</span> <span class="toc-text">First_Mobile(xman)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HelloSmali2"><span class="toc-number">10.</span> <span class="toc-text">HelloSmali2</span></a></li></ol>	
+        </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>

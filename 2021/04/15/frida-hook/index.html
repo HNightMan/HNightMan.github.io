@@ -1,0 +1,235 @@
+
+<!DOCTYPE html>
+<html lang="" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Frida apk hook - Theorist</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="Theorist,"> 
+    <meta name="description" content="Theorist&#39;s Blog,Frida简介frida是一款基于python + javascript 的hook框架，可运行在android、ios、linux、windows、macos等各平台，主要使用动态二进制插桩技术。,"> 
+    <meta name="author" content="Theorist"> 
+    <link rel="alternative" href="atom.xml" title="Theorist" type="application/atom+xml"> 
+    <link rel="icon" href="https://s2.ax1x.com/2019/07/10/Z6aCSs.png"> 
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+	<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({
+              google_ad_client: "ca-pub-8691406134231910",
+              enable_page_level_ads: true
+         });
+    </script>
+    <script async custom-element="amp-auto-ads"
+        src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
+    </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">Theorist</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="https://theorist.fun"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">Frida apk hook</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">Frida apk hook</h1>
+        <div class="stuff">
+            <span>四月 15, 2021</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/Android/" rel="tag">Android</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <h1 id="Frida简介"><a href="#Frida简介" class="headerlink" title="Frida简介"></a>Frida简介</h1><p>frida是一款基于python + javascript 的hook框架，可运行在android、ios、linux、windows、macos等各平台，主要使用动态二进制插桩技术。frida分为两部分，服务端运行在目标机上，通过注入进程的方式来实现劫持应用函数，另一部分运行在系统机器上。frida上层接口支持js、python、c等。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/frida">Frida官方github地址</a></p>
+<h1 id="Frida安装"><a href="#Frida安装" class="headerlink" title="Frida安装"></a>Frida安装</h1><ol>
+<li><p>安装python3</p>
+</li>
+<li><p>pip安装frida模块</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install frida</span><br></pre></td></tr></table></figure></li>
+<li><p>pip安装frida-tools模块</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install frida-tools</span><br></pre></td></tr></table></figure></li>
+<li><p>下载运行在目标机器上的服务端:<a target="_blank" rel="noopener" href="https://github.com/frida/frida/releases">官方地址</a>，要根据目标机器cpu架构选择。可以在<code>/proc/cpuinfo</code>中查看cpu信息。</p>
+</li>
+<li><p>adb连接手机</p>
+</li>
+<li><p>在手机上运行该服务端程序并进行端口映射</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">adb push frida-server-14.2.14-android-x86 /data/local/tmp</span><br><span class="line">adb forward tcp:27042 tcp:27042</span><br><span class="line">adb shell</span><br><span class="line">cd /data/local/tmp</span><br><span class="line">chmod +x frida-server-14.2.14-android-x86</span><br><span class="line">./frida-server-14.2.14-android-x86</span><br></pre></td></tr></table></figure>
+
+<p>本机执行命令<code>frida-ps -U</code>进行测试，若成功打印手机端的进程则表示安装成功。</p>
+</li>
+</ol>
+<h1 id="Frida-hook-Java层"><a href="#Frida-hook-Java层" class="headerlink" title="Frida hook Java层"></a>Frida hook Java层</h1><p>以攻防世界的Ph0en1x-100为例，jeb查看Java代码找到关键判断：</p>
+<p><img src="https://z3.ax1x.com/2021/04/12/cDy5in.png"></p>
+<p>用getSecret()分别处理getFlag()和encrypt(sInput)后将两个值比较，sInput是输入，只需要让getFlag()和encrypt(sInput)的值相同即可，ida查看so文件发现encrypt()函数只是将输入字符串的每一位ascii码-1，而getFlag()函数没有输入，故返回值不变，可以通过hook得到返回值。</p>
+<p>尝试修改getSecret()的返回值为”qaq”，脚本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> frida,sys <span class="comment">#导入模块</span></span><br><span class="line"></span><br><span class="line">jscode=<span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Java.perform(function()&#123;</span></span><br><span class="line"><span class="string">        var MainActivity=Java.use(&#x27;com.ph0en1x.android_crackme.MainActivity&#x27;);  //获取MainActivity类 </span></span><br><span class="line"><span class="string">        MainActivity.getSecret.implementation=function()&#123; //重写MainActivity.get_Secret()函数</span></span><br><span class="line"><span class="string">            send(&quot;hook ret qaq&quot;); //发送信息，回调python函数</span></span><br><span class="line"><span class="string">            return &quot;qaq&quot;; //返回字符串&quot;qaq&quot;</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">    &#125;);</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">on_message</span>(<span class="params">message,data</span>):</span> <span class="comment">#js中执行send函数后要回调的函数</span></span><br><span class="line">    print(message)</span><br><span class="line"></span><br><span class="line">process=frida.get_remote_device().attach(<span class="string">&#x27;com.ph0en1x.android_crackme&#x27;</span>) <span class="comment">#找到设备并劫持进程</span></span><br><span class="line">script=process.create_script(jscode) <span class="comment">#创建js脚本</span></span><br><span class="line">script.on(<span class="string">&#x27;message&#x27;</span>,on_message) <span class="comment">#加载回调函数</span></span><br><span class="line">script.load() <span class="comment">#加载脚本</span></span><br><span class="line">sys.stdin.read() <span class="comment">#不让python代码自动结束</span></span><br></pre></td></tr></table></figure>
+
+<p>先在手机端运行app，之后在本地执行python脚本，之后在手机端输入框随便输入:<br><img src="https://z3.ax1x.com/2021/04/15/c2zWGT.png"></p>
+<p>执行了两次<code>getSecret()</code>函数，发送了两次消息回调了两次<code>on_message()</code>，而两次<code>getSecret()</code>的返回值都被修改成了”qaq”，所以无论输入什么值都可以通过判断。</p>
+<h1 id="Frida-hook-Native层"><a href="#Frida-hook-Native层" class="headerlink" title="Frida hook Native层"></a>Frida hook Native层</h1><p>还说用这个程序，我们尝试hook Native层的<code>getFlag()</code>函数打印出返回值。需要说明一下关于so文件当中的函数，分为导出函数和未导出函数两种，导出函数打开IDA后能够在导出表中找到的函数就是导出函数，未导出函数则在导出表中寻找不到，一般来说静态编写的native函数都能在导出表中寻找到，而动态加载的则无法在导出表中发现。</p>
+<p>python脚本:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> frida,sys</span><br><span class="line"></span><br><span class="line">jscode=<span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">Java.perform(function()&#123;</span></span><br><span class="line"><span class="string">Interceptor.attach(Module.findExportByName(&quot;libphcm.so&quot;,&quot;Java_com_ph0en1x_android_1crackme_MainActivity_getFlag&quot;),&#123; //找到libphcm.so中的getFlag()函数，函数名在ida中找</span></span><br><span class="line"><span class="string">        onEnter:function(args)&#123; //进入该函数前执行的函数，其中args是传入的参数，一般so层函数第一个参数都是JniEnv，第二个参数是jclass，从第三个参数开始才是我们java层传入的参数</span></span><br><span class="line"><span class="string">        &#125;,</span></span><br><span class="line"><span class="string">        onLeave:function(retval)&#123; //退出该函数时执行的代码，retval是返回值，在C语言中返回的是一个`char*`，需要转化成java的string</span></span><br><span class="line"><span class="string">            var String_java = Java.use(&#x27;java.lang.String&#x27;);</span></span><br><span class="line"><span class="string">            var args_4 = Java.cast(retval, String_java);</span></span><br><span class="line"><span class="string">            send(&quot;getFlag()==&gt;&quot;+args_4);</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">    &#125;);</span></span><br><span class="line"><span class="string">&#125;);</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">printMessage</span>(<span class="params">message,data</span>):</span></span><br><span class="line">    <span class="keyword">if</span> message[<span class="string">&#x27;type&#x27;</span>] == <span class="string">&#x27;send&#x27;</span>:</span><br><span class="line">        print(<span class="string">&#x27;[*] &#123;0&#125;&#x27;</span>.format(message[<span class="string">&#x27;payload&#x27;</span>]))</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        print(message)</span><br><span class="line"></span><br><span class="line">process=frida.get_remote_device().attach(<span class="string">&#x27;com.ph0en1x.android_crackme&#x27;</span>)</span><br><span class="line">script=process.create_script(jscode)</span><br><span class="line">script.on(<span class="string">&#x27;message&#x27;</span>,printMessage)</span><br><span class="line">script.load()</span><br><span class="line">sys.stdin.read()</span><br></pre></td></tr></table></figure>
+
+<p>先在手机端运行app，之后在本地执行python脚本，之后在手机端输入框随便输入:<br><img src="https://z3.ax1x.com/2021/04/15/cR97Zj.png"></p>
+<p>可以看到js代码把字符串的值发回给python，之后python打印出来了。</p>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="true">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title='0' data-url='http://music.163.com/song/media/outer/url?id=420154189.mp3'></li>
+                        
+                    
+                        
+                            <li title='1' data-url='http://music.163.com/song/media/outer/url?id=527957820.mp3'></li>
+                        
+                    
+                        
+                            <li title='2' data-url='http://music.163.com/song/media/outer/url?id=1645064.mp3'></li>
+                        
+                    
+                        
+                            <li title='3' data-url='http://music.163.com/song/media/outer/url?id=39635710.mp3'></li>
+                        
+                    
+                        
+                            <li title='4' data-url='http://music.163.com/song/media/outer/url?id=464448450.mp3'></li>
+                        
+                    
+                        
+                            <li title='5' data-url='http://music.163.com/song/media/outer/url?id=33875750.mp3'></li>
+                        
+                    
+                        
+                            <li title='6' data-url='http://music.163.com/song/media/outer/url?id=864711417.mp3'></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+    <div id='gitalk-container' class="comment link"
+		data-enable='true'
+        data-ae='true'
+        data-ci='b4b7681976b71e1c4b85'
+        data-cs='1c0802349efe79789f01f3b548e96a4baf049907'
+        data-r='HNightMan.github.io'
+        data-o='HNightMan'
+        data-a='HNightMan'
+        data-d='false'
+    >查看评论</div>
+
+
+    </div>
+    
+        <div class='side'>
+			<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Frida%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">Frida简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Frida%E5%AE%89%E8%A3%85"><span class="toc-number">2.</span> <span class="toc-text">Frida安装</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Frida-hook-Java%E5%B1%82"><span class="toc-number">3.</span> <span class="toc-text">Frida hook Java层</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Frida-hook-Native%E5%B1%82"><span class="toc-number">4.</span> <span class="toc-text">Frida hook Native层</span></a></li></ol>	
+        </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>
